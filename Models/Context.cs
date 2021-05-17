@@ -15,8 +15,11 @@ namespace dotnet.Models {
         public DbSet<Receipt> receipts { get; set; }
         public DbSet<Room> rooms { get; set; }
         public DbSet<Payment> payments { get; set; }
-        public DbSet<Receiptionist> receiptionists { get; set; }
-    
+        public DbSet<Employee> employees { get; set; }
+        public DbSet<Invoice> invoices { get; set; }
+        public DbSet<Expense> expenses { get; set; }
+
+
 
     }
 }

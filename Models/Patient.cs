@@ -19,5 +19,18 @@ namespace dotnet.Models
         public DateTime Dob { get; set; }
         public string Contact { get; set; }
         public string PatientDetails { get; set; }
-    } 
+        public string PlaceofBirth {get;set;}
+        public string PatientCategory { get; set; }
+        public string MaritalStatus { get; set; }
+        public string PatientType { get; set; }
+        public string ExternalId { get; set; }
+        public string BloodGroup { get; set; }
+        public string ClinicSite { get; set; }
+        public string ReferedBy { get; set; }
+        public DateTime ReferedDate { get; set; }
+        public string Religion { get; set; }
+        public string PatientGardian { get; set; }
+        public string PaymentProfile { get; set; }
+    }
+    
 }

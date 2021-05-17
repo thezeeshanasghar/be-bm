@@ -16,7 +16,6 @@ namespace dotnet.Models
         public int DoctorId { get; set; }
         public virtual Doctor Doctor {get; set;}
         public int ReceiptionistId { get; set; }
-        public virtual Receiptionist Receiptionist {get; set;}
         public string Pmid { get; set; }
         public long TotalAmount { get; set; }
         public long PendingAmount { get; set; }
