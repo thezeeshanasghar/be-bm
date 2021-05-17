@@ -21,6 +21,5 @@ namespace dotnet.Models {
         public DbSet<Qualifications> qualifications { get; set; }
 
 
-
     }
 }

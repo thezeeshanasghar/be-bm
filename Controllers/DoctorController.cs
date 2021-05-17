@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
 using Microsoft.EntityFrameworkCore;
-
 namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
@@ -24,7 +23,7 @@ namespace dotnet.Controllers
         [HttpGet]
          public async Task<ActionResult<IEnumerable<Doctor>>> GetAll()
         {
-            return await _db.doctors.ToListAsync();
+            return await _db.doctors.Include(employees).thenInclude(qualifications).ToListAsync();
         }
 
         // GET api/Doctor/5
