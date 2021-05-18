@@ -9,8 +9,8 @@ using dotnet.Models;
 namespace dotnet.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20210517082802_changes")]
-    partial class changes
+    [Migration("20210518112754_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -56,6 +56,8 @@ namespace dotnet.Migrations
                     b.Property<string>("EmergencyContact");
 
                     b.Property<string>("EmployeeType");
+
+                    b.Property<string>("Experience");
 
                     b.Property<string>("FatherHusbandName");
 
@@ -254,6 +256,26 @@ namespace dotnet.Migrations
                     b.ToTable("procedures");
                 });
 
+            modelBuilder.Entity("dotnet.Models.Qualifications", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Certificate");
+
+                    b.Property<string>("Description");
+
+                    b.Property<int>("EmployeeId");
+
+                    b.Property<int>("qualificationType");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("qualifications");
+                });
+
             modelBuilder.Entity("dotnet.Models.Receipt", b =>
                 {
                     b.Property<int>("Id")
@@ -306,9 +328,23 @@ namespace dotnet.Migrations
                     b.ToTable("rooms");
                 });
 
+            modelBuilder.Entity("dotnet.Models.Service", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("services");
+                });
+
             modelBuilder.Entity("dotnet.Models.Doctor", b =>
                 {
-                    b.HasOne("dotnet.Models.Employee", "Employee")
+                    b.HasOne("dotnet.Models.Employee", "employee")
                         .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -335,6 +371,14 @@ namespace dotnet.Migrations
                 {
                     b.HasOne("dotnet.Models.Employee", "Employee")
                         .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("dotnet.Models.Qualifications", b =>
+                {
+                    b.HasOne("dotnet.Models.Employee", "Employee")
+                        .WithMany("Qualifications")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

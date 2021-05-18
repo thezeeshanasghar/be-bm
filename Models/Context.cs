@@ -19,6 +19,7 @@ namespace dotnet.Models {
         public DbSet<Invoice> invoices { get; set; }
         public DbSet<Expense> expenses { get; set; }
         public DbSet<Qualifications> qualifications { get; set; }
+        public DbSet<Service> services { get; set; }
 
 
     }

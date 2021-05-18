@@ -24,7 +24,7 @@ namespace dotnet.Controllers
         [HttpGet]
          public async Task<ActionResult<IEnumerable<Nurse>>> GetAll()
         {
-            return await _db.nurses.Include(employees).thenInclude(qualifications).ToListAsync();
+            return await _db.nurses.Include(x=>x.Employee).ThenInclude(x=>x.Qualifications).ToListAsync();
         }
 
         // GET api/Nurse/5

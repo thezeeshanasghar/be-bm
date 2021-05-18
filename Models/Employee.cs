@@ -23,5 +23,7 @@ namespace dotnet.Models
         public string Password { get; set; }
         public int FlourNo { get; set; }
         public string Experience { get; set; }
+        public virtual ICollection<Qualifications> Qualifications { get; set; }
+
     }
 }

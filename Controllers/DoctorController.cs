@@ -23,7 +23,7 @@ namespace dotnet.Controllers
         [HttpGet]
          public async Task<ActionResult<IEnumerable<Doctor>>> GetAll()
         {
-            return await _db.doctors.Include(employees).thenInclude(qualifications).ToListAsync();
+            return await _db.doctors.Include(x=>x.employee).ThenInclude(x=>x.Qualifications).ToListAsync();
         }
 
         // GET api/Doctor/5

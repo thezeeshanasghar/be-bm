@@ -6,7 +6,7 @@ namespace dotnet.Models
     {
         public int Id { get; set; }
         public int EmployeeId { get; set; }
-        public virtual Employee Employee { get; set; }
+        public virtual Employee employee { get; set; }
         public int ConsultationFee { get; set; }
         public int EmergencyConsultationFee { get; set; }
         public int ShareInFee { get; set; }
