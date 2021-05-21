@@ -8,8 +8,8 @@ namespace dotnet.Models
     public class Invoice
     {
         public int Id { get; set; }
-        public int PatientId { get; set; }
-        public virtual Patient Patient { get; set; }
+        public int AppointmentId { get; set; }
+        public virtual Appointment Appointment { get; set; }
         public DateTime PreviousVisitDate { get; set; }
         public DateTime TodayVisitDate { get; set; }
         public int DoctorId { get; set; }

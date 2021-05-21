@@ -214,48 +214,24 @@ namespace dotnet.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "invoices",
+                name: "appointments",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySQL:AutoIncrement", true),
                     PatientId = table.Column<int>(nullable: false),
-                    PreviousVisitDate = table.Column<DateTime>(nullable: false),
-                    TodayVisitDate = table.Column<DateTime>(nullable: false),
-                    DoctorId = table.Column<int>(nullable: false),
-                    CheckupType = table.Column<string>(nullable: true),
-                    PaymentType = table.Column<string>(nullable: true),
-                    ProcedureId = table.Column<int>(nullable: false),
-                    ProceduresId = table.Column<int>(nullable: true),
-                    ConsultationFee = table.Column<double>(nullable: false),
-                    Discount = table.Column<double>(nullable: false),
-                    NetAmount = table.Column<double>(nullable: false),
-                    Disposibles = table.Column<double>(nullable: false),
-                    GrossAmount = table.Column<double>(nullable: false),
-                    IsRefund = table.Column<int>(nullable: false),
-                    RefundAmount = table.Column<double>(nullable: false)
+                    AppointmentCode = table.Column<string>(nullable: true),
+                    AppointmentDate = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_invoices", x => x.Id);
+                    table.PrimaryKey("PK_appointments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_invoices_doctors_DoctorId",
-                        column: x => x.DoctorId,
-                        principalTable: "doctors",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_invoices_patients_PatientId",
+                        name: "FK_appointments_patients_PatientId",
                         column: x => x.PatientId,
                         principalTable: "patients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_invoices_procedures_ProceduresId",
-                        column: x => x.ProceduresId,
-                        principalTable: "procedures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -298,20 +274,70 @@ namespace dotnet.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "invoices",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("MySQL:AutoIncrement", true),
+                    AppointmentId = table.Column<int>(nullable: false),
+                    PreviousVisitDate = table.Column<DateTime>(nullable: false),
+                    TodayVisitDate = table.Column<DateTime>(nullable: false),
+                    DoctorId = table.Column<int>(nullable: false),
+                    CheckupType = table.Column<string>(nullable: true),
+                    PaymentType = table.Column<string>(nullable: true),
+                    ProcedureId = table.Column<int>(nullable: false),
+                    ProceduresId = table.Column<int>(nullable: true),
+                    ConsultationFee = table.Column<double>(nullable: false),
+                    Discount = table.Column<double>(nullable: false),
+                    NetAmount = table.Column<double>(nullable: false),
+                    Disposibles = table.Column<double>(nullable: false),
+                    GrossAmount = table.Column<double>(nullable: false),
+                    IsRefund = table.Column<int>(nullable: false),
+                    RefundAmount = table.Column<double>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_invoices", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_invoices_appointments_AppointmentId",
+                        column: x => x.AppointmentId,
+                        principalTable: "appointments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_invoices_doctors_DoctorId",
+                        column: x => x.DoctorId,
+                        principalTable: "doctors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_invoices_procedures_ProceduresId",
+                        column: x => x.ProceduresId,
+                        principalTable: "procedures",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_appointments_PatientId",
+                table: "appointments",
+                column: "PatientId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_doctors_EmployeeId",
                 table: "doctors",
                 column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_invoices_AppointmentId",
+                table: "invoices",
+                column: "AppointmentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_invoices_DoctorId",
                 table: "invoices",
                 column: "DoctorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_invoices_PatientId",
-                table: "invoices",
-                column: "PatientId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_invoices_ProceduresId",
@@ -368,16 +394,19 @@ namespace dotnet.Migrations
                 name: "services");
 
             migrationBuilder.DropTable(
+                name: "appointments");
+
+            migrationBuilder.DropTable(
                 name: "procedures");
 
             migrationBuilder.DropTable(
                 name: "doctors");
 
             migrationBuilder.DropTable(
-                name: "patients");
+                name: "payments");
 
             migrationBuilder.DropTable(
-                name: "payments");
+                name: "patients");
 
             migrationBuilder.DropTable(
                 name: "employees");

@@ -9,9 +9,10 @@ namespace dotnet.Models
     public class Room
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Availability { get; set; }
-        public string FlourNo {get; set;}
+        public string RoomNo { get; set; }
+        public string RoomType { get; set; }
+        public double  RoomCapacity {get; set;}
+        public double  Charges {get; set;}
         
 }
 
