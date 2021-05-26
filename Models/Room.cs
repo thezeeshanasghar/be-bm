@@ -10,11 +10,15 @@ namespace dotnet.Models
     {
         public int Id { get; set; }
         public string RoomNo { get; set; }
-        public string RoomType { get; set; }
-        public double  RoomCapacity {get; set;}
-        public double  Charges {get; set;}
+        public RoomType RoomType { get; set; }
+        public int RoomCapacity { get; set; }
+        public double RoomCharges {get; set;}
         
 }
 
-}
+    public enum RoomType
+    {
+     RoomType1,RoomType2
+    }
 
+}
