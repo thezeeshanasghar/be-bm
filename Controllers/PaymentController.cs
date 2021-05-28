@@ -22,9 +22,16 @@ namespace dotnet.Controllers
 
         // GET api/Payment
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Payment>>> GetAll()
+         public async Task<ActionResult<IEnumerable<Payment>>> GetAll(string? key)
         {
-            return await _db.payments.ToListAsync();
+            if (key != "" && key != null)
+            {
+                return await _db.payments.Where(x => x.Name.ToLower().Contains(key) ||  x.Id.ToString().Contains(key)).ToListAsync();
+            }
+            else
+            {
+                return await _db.payments.ToListAsync();
+            }
         }
 
         // GET api/Payment/5

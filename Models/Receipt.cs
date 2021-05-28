@@ -23,5 +23,10 @@ namespace dotnet.Models
         public int PaymentId { get; set; }
         public virtual Payment Payment{ get; set; }
 
-    } 
+    }
+    public class Receipts
+    {
+        public IEnumerable<Receipt> receipts { get; set; }
+        public int Count { get; set; }
+    }
 }

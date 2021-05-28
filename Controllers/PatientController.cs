@@ -22,9 +22,16 @@ namespace dotnet.Controllers
 
         // GET api/Patient
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Patient>>> GetAll()
+         public async Task<ActionResult<IEnumerable<Patient>>> GetAll(string? key)
         {
-            return await _db.patients.ToListAsync();
+            if (key != "" && key != null)
+            {
+                return await _db.patients.Where(x => x.Name.ToLower().Contains(key) || x.Email.ToLower().Contains(key) || x.Contact.ToLower().Contains(key) ||  x.Id.ToString().Contains(key)).ToListAsync();
+            }
+            else
+            {
+                return await _db.patients.ToListAsync();
+            }
         }
 
         // GET api/Patient/5

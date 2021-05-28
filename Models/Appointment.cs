@@ -15,6 +15,11 @@ namespace dotnet.Models
         public string AppointmentDate {get; set;}
         
 }
+    public class Appointments
+    {
+        public IEnumerable<Appointment> appointments { get; set; }
+        public int Count { get; set; }
+    }
 
 }
 

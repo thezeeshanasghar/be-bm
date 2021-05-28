@@ -10,7 +10,7 @@ namespace dotnet.Models {
         }
         public DbSet<Doctor> doctors { get; set; }
         public DbSet<Nurse> nurses { get; set; }
-        public DbSet<Procedures> procedures { get; set; }
+        public DbSet<Procedure> procedures { get; set; }
         public DbSet<Patient> patients { get; set; }
         public DbSet<Receipt> receipts { get; set; }
         public DbSet<Room> rooms { get; set; }

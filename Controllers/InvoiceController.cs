@@ -22,9 +22,17 @@ namespace dotnet.Controllers
 
         // GET api/Invoice
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Invoice>>> GetAll()
+         public async Task<ActionResult<IEnumerable<Invoice>>> GetAll(string? key)
         {
-            return await _db.invoices.ToListAsync();
+            if (key != "" && key != null)
+            {
+                return await _db.invoices.Where(x => x.Appointment.Patient.Name.ToLower().Contains(key) || x.Appointment.Patient.Email.ToLower().Contains(key) || x.Appointment.Patient.Contact.ToLower().Contains(key) || x.Appointment.Patient.City.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+            }
+            else
+            {
+                return await _db.invoices.ToListAsync();
+            }
+
         }
 
         // GET api/Invoice/5

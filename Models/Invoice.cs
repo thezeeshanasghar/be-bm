@@ -18,7 +18,7 @@ namespace dotnet.Models
         public string CheckupType { get; set; }
         public string PaymentType { get; set; }
         public int ProcedureId { get; set; }
-        public virtual Procedures Procedures { get; set; }
+        public virtual Procedure Procedures { get; set; }
         public double  ConsultationFee { get; set; }
         public double Discount { get; set; }
         public double NetAmount { get; set; }
@@ -26,5 +26,10 @@ namespace dotnet.Models
         public double GrossAmount { get; set; }
         public int IsRefund { get; set; }
         public double RefundAmount { get; set; }
+    }
+    public class Invoices
+    {
+        public IEnumerable<Invoice> invoices { get; set; }
+        public int Count { get; set; }
     }
 }

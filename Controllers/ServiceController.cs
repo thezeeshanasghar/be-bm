@@ -21,9 +21,16 @@ namespace dotnet.Controllers
 
         // GET api/Service
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Service>>> GetAll()
+         public async Task<ActionResult<IEnumerable<Service>>> GetAll(string key)
         {
-            return await _db.services.ToListAsync();
+            if (key != "" && key != null)
+            {
+                return await _db.services.Where(x => x.Name.ToLower().Contains(key) || x.Description.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+            }
+            else
+            {
+                return await _db.services.ToListAsync();
+            }
         }
 
         // GET api/Service/5

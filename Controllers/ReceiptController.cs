@@ -22,9 +22,16 @@ namespace dotnet.Controllers
 
         // GET api/Receipt
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Receipt>>> GetAll()
+         public async Task<ActionResult<IEnumerable<Receipt>>> GetAll(string? key)
         {
-            return await _db.receipts.ToListAsync();
+            if (key != "" && key != null)
+            {
+                return await _db.receipts.Where(x => x.Name.ToLower().Contains(key) || x.Sex.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+            }
+            else
+            {
+                return await _db.receipts.ToListAsync();
+            }
         }
 
         // GET api/Receipt/5

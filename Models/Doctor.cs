@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace dotnet.Models
 {
@@ -10,34 +11,11 @@ namespace dotnet.Models
         public int ConsultationFee { get; set; }
         public int EmergencyConsultationFee { get; set; }
         public int ShareInFee { get; set; }
-        public SpecialityType SpecialityType {get ; set;}
+        public string SpecialityType {get ; set;}
     }
-
-
-      public enum SpecialityType
+    public class Doctors
     {
-        Cardiologist,
-        Dentist,
-        Ent_Surgeon,
-        Eye_Specialist,
-        Eye_Surgeon,
-        Gastroenterologist,
-        General_Physician,
-        General_Surgeon,
-        Gynecologist,
-        Nephrologist,
-        Neuro_Surgeon,
-        Neurologist, 
-        Orthopedic_Surgeon,
-        Pediatric_Surgeon, 
-        Pediatrician, 
-        Physiotherapist, 
-        Plastic_Surgeon, 
-        Psychiatrist, 
-        Psychologist, 
-        Radiologist, 
-        Urologist,
-
+        public IEnumerable<Doctor> doctors { get; set; }
+        public int Count { get; set; }
     }
-
 }

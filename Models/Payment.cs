@@ -12,4 +12,9 @@ namespace dotnet.Models
         public string Name { get; set; }
         
 }
+    public class Payments
+    {
+        public IEnumerable<Payment> payments { get; set; }
+        public int Count { get; set; }
+    }
 }

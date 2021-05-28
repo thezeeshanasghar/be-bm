@@ -11,4 +11,9 @@ namespace dotnet.Models
         public string  Name { get; set; }
         public string Description { get; set; }
     }
+    public class Services
+    {   
+        public IEnumerable<Service> services { get; set; }
+        public int Count { get; set; }
+    }
 }

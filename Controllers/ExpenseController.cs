@@ -22,9 +22,17 @@ namespace dotnet.Controllers
 
         // GET api/Expense
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Expense>>> GetAll()
+         public async Task<ActionResult<IEnumerable<Expense>>> GetAll(string? key)
         {
-            return await _db.expenses.ToListAsync();
+            if (key != "" && key != null)
+            {
+                return await _db.expenses.Where(x => x.EmployeeName.ToLower().Contains(key) || x.ExpenseCategory.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+            }
+            else
+            {
+                return await _db.expenses.ToListAsync();
+            }
+          
         }
 
         // GET api/Expense/5

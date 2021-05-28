@@ -32,5 +32,10 @@ namespace dotnet.Models
         public string PatientGardian { get; set; }
         public string PaymentProfile { get; set; }
     }
-    
+    public class Patients
+    {
+        public IEnumerable<Patient> patients { get; set; }
+        public int Count { get; set; }
+    }
+
 }

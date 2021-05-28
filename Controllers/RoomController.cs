@@ -22,9 +22,16 @@ namespace dotnet.Controllers
 
         // GET api/Room
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Room>>> GetAll()
+         public async Task<ActionResult<IEnumerable<Room>>> GetAll(string? key)
         {
-            return await _db.rooms.ToListAsync();
+            if (key != "" && key != null)
+            {
+                return await _db.rooms.Where(x => x.RoomNo.ToLower().Contains(key) || x.RoomType.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+            }
+            else
+            {
+                return await _db.rooms.ToListAsync();
+            }
         }
 
         // GET api/Room/5

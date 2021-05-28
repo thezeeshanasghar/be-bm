@@ -12,12 +12,11 @@ namespace dotnet.Models
         public virtual Employee Employee { get; set; }
         public string Certificate { get; set; }
         public string Description { get; set; }
-        public QualificationType qualificationType { get; set; }
+        public string qualificationType { get; set; }
     }
-
-    public enum QualificationType
+    public class Qualification
     {
-     Cerficate,Deploma
-
+        public IEnumerable<Qualifications> qualifications { get; set; }
+        public int Count { get; set; }
     }
 }

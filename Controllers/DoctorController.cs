@@ -21,9 +21,16 @@ namespace dotnet.Controllers
 
         // GET api/Doctor
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Doctor>>> GetAll()
+         public async Task<ActionResult<IEnumerable<Doctor>>> GetAll(string? key)
         {
-            return await _db.doctors.Include(x=>x.employee).ThenInclude(x=>x.Qualifications).ToListAsync();
+            if (key != "" && key != null)
+            {
+                return await _db.doctors.Include(x => x.employee).ThenInclude(x => x.Qualifications).Where(x => x.employee.FirstName.ToLower().Contains(key) || x.employee.LastName.ToLower().Contains(key) || x.employee.Email.ToLower().Contains(key) || x.employee.Contact.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+            }
+            else
+            {
+                return await _db.doctors.Include(x => x.employee).ThenInclude(x => x.Qualifications).ToListAsync();
+            }
         }
 
         // GET api/Doctor/5

@@ -15,4 +15,9 @@ namespace dotnet.Models
         public int SharePercentage { get; set; }
         public double Salary { get; set; }
     }
+    public class Nurses
+    {
+        public IEnumerable<Nurse> nurses { get; set; }
+        public int Count { get; set; }
+    }
 }

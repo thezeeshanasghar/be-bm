@@ -26,4 +26,8 @@ namespace dotnet.Models
         public virtual ICollection<Qualifications> Qualifications { get; set; }
 
     }
+    public class Employees {
+        public IEnumerable<Employee> employees { get; set; }
+        public int Count { get; set; }
+    }
 }

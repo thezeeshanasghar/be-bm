@@ -17,4 +17,9 @@ namespace dotnet.Models
         public double TotalBill { get; set; }
         public string TransactionDetail { get; set; }
     }
+    public class Expenses
+    {
+        public IEnumerable<Expense> expenses { get; set; }
+        public int Count { get; set; }
+    }
 }
