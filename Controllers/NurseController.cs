@@ -26,11 +26,11 @@ namespace dotnet.Controllers
         {
             if (key != "" && key != null)
             {
-                return await _db.nurses.Include(x => x.Employee).Where(x => x.Employee.FirstName.ToLower().Contains(key) || x.Employee.LastName.ToLower().Contains(key) || x.Employee.Email.ToLower().Contains(key) || x.Employee.Contact.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                return await _db.nurses.Include(x => x.Employee).ThenInclude(x=>x.Qualifications).Where(x => x.Employee.FirstName.ToLower().Contains(key) || x.Employee.LastName.ToLower().Contains(key) || x.Employee.Email.ToLower().Contains(key) || x.Employee.Contact.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                return await _db.nurses.Include(x => x.Employee).ToListAsync();
+                return await _db.nurses.Include(x => x.Employee).ThenInclude(x=>x.Qualifications).ToListAsync();
             }
         }
 
@@ -38,7 +38,7 @@ namespace dotnet.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Nurse>> GetSingle(long id)
         {
-            var Nurse = await _db.nurses.Include(x=>x.Employee).FirstOrDefaultAsync(x => x.Id == id);
+            var Nurse = await _db.nurses.Include(x=>x.Employee).ThenInclude(x=>x.Qualifications).FirstOrDefaultAsync(x => x.Id == id);
             if (Nurse == null)
                 return NotFound();
 
@@ -49,6 +49,7 @@ namespace dotnet.Controllers
        [HttpPost]
         public async Task<ActionResult<Nurse>> Post(Nurse Nurse)
         {
+
             _db.nurses.Update(Nurse);
             
             await _db.SaveChangesAsync();
@@ -60,13 +61,40 @@ namespace dotnet.Controllers
        [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, Nurse Nurse)
         {
-            if (id != Nurse.Id)
+            using var transaction = _db.Database.BeginTransaction();
+            try { 
+             if (id != Nurse.Id)
                 return BadRequest();
-            _db.Entry(Nurse).State = EntityState.Modified;
-            await _db.SaveChangesAsync();
 
-            return NoContent();
+            _db.Entry(Nurse).State = EntityState.Modified;
+
+            _db.Entry(Nurse.Employee).State = EntityState.Modified;
+            foreach (Qualifications qualification in Nurse.Employee.Qualifications)
+            {
+                var resp = _db.qualifications.Where(x => x.Id == qualification.Id).Count();
+                if (resp >0)
+                {
+                    _db.Entry(qualification).State = EntityState.Modified;
+                }
+                else
+                {
+                    qualification.Id = 0;
+                    _db.qualifications.Update(qualification);
+                }
+
+                await _db.SaveChangesAsync();
+            }
+            await _db.SaveChangesAsync();
+            transaction.Commit();
+
         }
+            catch (Exception ex) {
+                transaction.Rollback();
+            }
+           
+            return NoContent();
+
+}
 
         // DELETE api/Nurse/5
         [HttpDelete("{id}")]

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
 using Microsoft.EntityFrameworkCore;
+
 namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
@@ -59,11 +60,37 @@ namespace dotnet.Controllers
        [HttpPut("{id}")]
         public async Task<IActionResult> Put(long id, Doctor Doctor)
         {
-            if (id != Doctor.Id)
-                return BadRequest();
-            _db.Entry(Doctor).State = EntityState.Modified;
-            await _db.SaveChangesAsync();
+            using var transaction = _db.Database.BeginTransaction();
+            try
+            {
+                if (id != Doctor.Id)
+                    return BadRequest();
 
+                _db.Entry(Doctor).State = EntityState.Modified;
+
+                _db.Entry(Doctor.employee).State = EntityState.Modified;
+                foreach (Qualifications qualification in Doctor.employee.Qualifications)
+                {
+                  var resp=  _db.qualifications.Where(x => x.Id == qualification.Id).FirstOrDefault();
+                    if (resp != null)
+                    {
+                        _db.Entry(qualification).State = EntityState.Modified;
+                    }
+                    else {
+                        qualification.Id =0;
+                        _db.qualifications.Update(qualification);
+                    }
+                  
+                    await _db.SaveChangesAsync();
+                }
+                await _db.SaveChangesAsync();
+                transaction.Commit();
+
+            }
+            catch (Exception ex) {
+                transaction.Rollback();
+            }
+           
             return NoContent();
         }
 
