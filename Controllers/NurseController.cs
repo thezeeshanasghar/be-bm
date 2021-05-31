@@ -38,7 +38,7 @@ namespace dotnet.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Nurse>> GetSingle(long id)
         {
-            var Nurse = await _db.nurses.FirstOrDefaultAsync(x => x.Id == id);
+            var Nurse = await _db.nurses.Include(x=>x.Employee).FirstOrDefaultAsync(x => x.Id == id);
             if (Nurse == null)
                 return NotFound();
 
