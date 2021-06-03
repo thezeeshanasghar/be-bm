@@ -21,7 +21,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Procedures
-        [HttpGet]
+        [HttpGet("get")]
          public async Task<Response<List<Procedure>>> GetAll(string? key)
         {
              List<Procedure> procedures;
@@ -37,7 +37,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Procedures/5
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
         public async Task<Response<Procedure>> GetSingle(long id)
         {
             var Procedures = await _db.procedures.FirstOrDefaultAsync(x => x.Id == id);
@@ -48,7 +48,7 @@ namespace dotnet.Controllers
         }
 
         // POST api/Procedures
-       [HttpPost]
+       [HttpPost("insert")]
         public async Task<ActionResult<Procedure>> Post(Procedure Procedures)
         {
             _db.procedures.Update(Procedures);
@@ -59,7 +59,7 @@ namespace dotnet.Controllers
         }
 
         // PUT api/Procedures/5
-       [HttpPut("{id}")]
+       [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(int id, Procedure Procedures)
         {
             if (id != Procedures.Id)
@@ -71,7 +71,7 @@ namespace dotnet.Controllers
         }
 
         // DELETE api/Procedures/5
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var Procedures = await _db.procedures.FindAsync(id);

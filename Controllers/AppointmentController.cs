@@ -21,7 +21,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Appointment
-        [HttpGet]
+        [HttpGet("get")]
            public async Task<Response<List<Appointment>>> GetAll(string? key)
         {
              List<Appointment> appointments;
@@ -37,7 +37,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Appointment/5
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
          public async Task<Response<Appointment>> GetSingle(long id)
         {
             var Appointment = await _db.appointments.FirstOrDefaultAsync(x => x.Id == id);
@@ -47,7 +47,7 @@ namespace dotnet.Controllers
         }
 
         // POST api/Appointment
-       [HttpPost]
+       [HttpPost("insert")]
         public async Task<ActionResult<Appointment>> Post(Appointment Appointment)
         {
             _db.appointments.Update(Appointment);
@@ -58,11 +58,11 @@ namespace dotnet.Controllers
         }
 
         // PUT api/Appointment/5
-       [HttpPut("{id}")]
+       [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Appointment Appointment)
         {
             if (id != Appointment.Id)
-                return BadRequest();
+            return BadRequest();
             _db.Entry(Appointment).State = EntityState.Modified;
             await _db.SaveChangesAsync();
 
@@ -70,7 +70,7 @@ namespace dotnet.Controllers
         }
 
         // DELETE api/Appointment/5
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var Appointment = await _db.appointments.FindAsync(id);

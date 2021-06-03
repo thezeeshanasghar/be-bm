@@ -20,7 +20,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Service
-        [HttpGet]
+        [HttpGet("get")]
          public async Task<Response<List<Service>>> GetAll(string key)
         {
              List<Service> services;
@@ -36,7 +36,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Service/5
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
         public async Task<Response<Service>> GetSingle(long id)
         {
             var Service = await _db.services.FirstOrDefaultAsync(x => x.Id == id);
@@ -49,7 +49,7 @@ namespace dotnet.Controllers
         }
 
         // POST api/Service
-       [HttpPost]
+       [HttpPost("insert")]
         public async Task<ActionResult<Service>> Post(Service Service)
         {
             _db.services.Update(Service);
@@ -60,7 +60,7 @@ namespace dotnet.Controllers
         }
 
         // PUT api/Service/5
-       [HttpPut("{id}")]
+       [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Service Service)
         {
             if (id != Service.Id)
@@ -72,7 +72,7 @@ namespace dotnet.Controllers
         }
 
         // DELETE api/Service/5
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var Service = await _db.services.FindAsync(id);

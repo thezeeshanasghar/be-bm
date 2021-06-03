@@ -21,7 +21,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Expense
-        [HttpGet]
+        [HttpGet("get")]
          public async Task<Response<List<Expense>>> GetAll(string? key)
         {
             
@@ -40,7 +40,7 @@ namespace dotnet.Controllers
 
 
         // GET api/Expense/5
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
         public async Task<Response<Expense>> GetSingle(long id)
         {
             var Expense = await _db.expenses.FirstOrDefaultAsync(x => x.Id == id);
@@ -51,7 +51,7 @@ namespace dotnet.Controllers
         }
 
         // POST api/Expense
-       [HttpPost]
+       [HttpPost("insert")]
         public async Task<ActionResult<Expense>> Post(Expense Expense)
         {
             _db.expenses.Update(Expense);
@@ -62,7 +62,7 @@ namespace dotnet.Controllers
         }
 
         // PUT api/Expense/5
-       [HttpPut("{id}")]
+       [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Expense Expense)
         {
             if (id != Expense.Id)
@@ -74,7 +74,7 @@ namespace dotnet.Controllers
         }
 
         // DELETE api/Expense/5
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var Expense = await _db.expenses.FindAsync(id);

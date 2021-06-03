@@ -21,7 +21,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Employee
-        [HttpGet]
+        [HttpGet("get")]
          public async Task<Response<List<Employee>>> GetAll(String? key)
         {
             List<Employee> employees;
@@ -37,7 +37,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Employee/5
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
         public async Task<Response<Employee>> GetSingle(long id)
         {
             var Employee = await _db.employees.FirstOrDefaultAsync(x => x.Id == id);
@@ -47,7 +47,7 @@ namespace dotnet.Controllers
         }
 
         // POST api/Employee
-       [HttpPost]
+       [HttpPost("insert")]
         public async Task<ActionResult<Employee>> Post(Employee Employee)
         {
             _db.employees.Update(Employee);
@@ -58,7 +58,7 @@ namespace dotnet.Controllers
         }
 
         // PUT api/Employee/5
-       [HttpPut("{id}")]
+       [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Employee Employee)
         {
             if (id != Employee.Id)
@@ -70,7 +70,7 @@ namespace dotnet.Controllers
         }
 
         // DELETE api/Employee/5
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var Employee = await _db.employees.FindAsync(id);

@@ -21,7 +21,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Receipt
-        [HttpGet]
+        [HttpGet("get")]
           public async Task<Response<List<Receipt>>> GetAll(string? key)
         {
             List<Receipt> receipts;
@@ -37,7 +37,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Receipt/5
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
         public async Task<Response<Receipt>> GetSingle(long id)
         {
             var Receipt = await _db.receipts.FirstOrDefaultAsync(x => x.Id == id);
@@ -48,7 +48,7 @@ namespace dotnet.Controllers
         }
 
         // POST api/Receipt
-       [HttpPost]
+       [HttpPost("insert")]
         public async Task<ActionResult<Receipt>> Post(Receipt Receipt)
         {
             _db.receipts.Update(Receipt);
@@ -59,7 +59,7 @@ namespace dotnet.Controllers
         }
 
         // PUT api/Receipt/5
-       [HttpPut("{id}")]
+       [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Receipt Receipt)
         {
             if (id != Receipt.Id)
@@ -71,7 +71,7 @@ namespace dotnet.Controllers
         }
 
         // DELETE api/Receipt/5
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var Receipt = await _db.receipts.FindAsync(id);

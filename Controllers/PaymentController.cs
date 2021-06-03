@@ -21,7 +21,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Payment
-        [HttpGet]
+        [HttpGet("get")]
           public async Task<Response<List<Payment>>> GetAll(string? key)
         {
                List<Payment> payments;
@@ -37,7 +37,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Payment/5
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
          public async Task<Response<Payment>> GetSingle(long id)
         {
             var Payment = await _db.payments.FirstOrDefaultAsync(x => x.Id == id);
@@ -48,7 +48,7 @@ namespace dotnet.Controllers
         }
 
         // POST api/Payment
-       [HttpPost]
+       [HttpPost("insert")]
         public async Task<ActionResult<Payment>> Post(Payment Payment)
         {
             _db.payments.Update(Payment);
@@ -59,7 +59,7 @@ namespace dotnet.Controllers
         }
 
         // PUT api/Payment/5
-       [HttpPut("{id}")]
+       [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Payment Payment)
         {
             if (id != Payment.Id)
@@ -71,7 +71,7 @@ namespace dotnet.Controllers
         }
 
         // DELETE api/Payment/5
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var Payment = await _db.payments.FindAsync(id);

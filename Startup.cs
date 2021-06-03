@@ -23,6 +23,8 @@ using MySql.Data.EntityFrameworkCore;
 using MySql.Data.EntityFrameworkCore.Extensions;
 using Newtonsoft.Json.Serialization;
 using dotnet.Hubs;
+using System.Net.Http.Formatting;
+
 namespace dotnet {
     public class Startup {
         public Startup (IConfiguration configuration) {
@@ -47,12 +49,17 @@ namespace dotnet {
                 });
             services.AddDbContext<Context> (options => options.UseMySQL (Configuration.GetConnectionString ("DefaultConnection")));
             // services.AddDbContext<ApplicationDbContext>();
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.PropertyNamingPolicy = null;
+            });
             services.AddSwaggerGen ((options) => {
                 options.SwaggerDoc ("v1", new OpenApiInfo { Title = "myApi", Version = "v1" });
             });
             services.AddCors ();
             services.AddSignalR();
+
 
             services.AddControllersWithViews ()
                 .AddNewtonsoftJson (options =>

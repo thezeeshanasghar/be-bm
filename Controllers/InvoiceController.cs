@@ -21,7 +21,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Invoice
-        [HttpGet]
+        [HttpGet("get")]
          public async Task<Response<List<Invoice>>> GetAll(string? key)
         {
               List<Invoice> invoices;
@@ -38,7 +38,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Invoice/5
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
         public async Task<Response<Invoice>> GetSingle(long id)
         {
             var Invoice = await _db.invoices.FirstOrDefaultAsync(x => x.Id == id);
@@ -48,7 +48,7 @@ namespace dotnet.Controllers
         }
 
         // POST api/Invoice
-       [HttpPost]
+       [HttpPost("insert")]
         public async Task<ActionResult<Invoice>> Post(Invoice Invoice)
         {
             _db.invoices.Update(Invoice);
@@ -59,7 +59,7 @@ namespace dotnet.Controllers
         }
 
         // PUT api/Invoice/5
-       [HttpPut("{id}")]
+       [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Invoice Invoice)
         {
             if (id != Invoice.Id)
@@ -71,7 +71,7 @@ namespace dotnet.Controllers
         }
 
         // DELETE api/Invoice/5
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var Invoice = await _db.invoices.FindAsync(id);

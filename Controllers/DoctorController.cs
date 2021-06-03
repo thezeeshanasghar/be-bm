@@ -21,10 +21,9 @@ namespace dotnet.Controllers
         }
 
         // GET api/Doctor
-        [HttpGet]
+        [HttpGet("get")]
          public async Task<Response<List<Doctor>>> GetAll(string? key)
         {
-            Console.WriteLine("called");
             List<Doctor> doctors;
             if (key != "" && key != null)
             {
@@ -38,7 +37,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Doctor/5
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
         public async Task<Response<Doctor>> GetSingle(long id)
         {
             var Doctor = await _db.doctors.Include(x=>x.employee).ThenInclude(x=>x.Qualifications).FirstOrDefaultAsync(x => x.Id == id);
@@ -48,7 +47,7 @@ namespace dotnet.Controllers
         }
 
         // POST api/Doctor
-       [HttpPost]
+       [HttpPost("insert")]
         public async Task<ActionResult<Doctor>> Post(Doctor Doctor)
         {
             _db.doctors.Update(Doctor);
@@ -59,7 +58,7 @@ namespace dotnet.Controllers
         }
 
         // PUT api/Doctor/5
-       [HttpPut("{id}")]
+       [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Doctor Doctor)
         {
             using var transaction = _db.Database.BeginTransaction();
@@ -97,7 +96,7 @@ namespace dotnet.Controllers
         }
 
         // DELETE api/Doctor/5
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var Doctor = await _db.doctors.FindAsync(id);

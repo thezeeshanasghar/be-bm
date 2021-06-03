@@ -21,7 +21,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Room
-        [HttpGet]
+        [HttpGet("get")]
          public async Task<Response<List<Room>>> GetAll(string? key)
         {
              List<Room> rooms;
@@ -37,7 +37,7 @@ namespace dotnet.Controllers
         }
 
         // GET api/Room/5
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
         public async Task<Response<Room>> GetSingle(long id)
         {
             var Room = await _db.rooms.FirstOrDefaultAsync(x => x.Id == id);
@@ -48,7 +48,7 @@ namespace dotnet.Controllers
         }
 
         // POST api/Room
-       [HttpPost]
+       [HttpPost("insert")]
         public async Task<ActionResult<Room>> Post(Room Room)
         {
             _db.rooms.Update(Room);
@@ -59,7 +59,7 @@ namespace dotnet.Controllers
         }
 
         // PUT api/Room/5
-       [HttpPut("{id}")]
+       [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Room Room)
         {
             if (id != Room.Id)
@@ -71,7 +71,7 @@ namespace dotnet.Controllers
         }
 
         // DELETE api/Room/5
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var Room = await _db.rooms.FindAsync(id);
