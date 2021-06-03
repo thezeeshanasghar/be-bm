@@ -17,7 +17,7 @@ namespace dotnet.Models
         public string PlaceofBirth {get;set;}
         public string Email { get; set; }
         public string Contact { get; set; }
-        public string Address { get; set; }
+        public string cnic { get; set; }
         public string MaritalStatus { get; set; }
        public string PatientType { get; set; }
         public string ExternalId { get; set; }
