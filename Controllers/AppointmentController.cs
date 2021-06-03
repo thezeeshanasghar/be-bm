@@ -22,27 +22,28 @@ namespace dotnet.Controllers
 
         // GET api/Appointment
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Appointment>>> GetAll(string? key)
+           public async Task<Response<List<Appointment>>> GetAll(string? key)
         {
+             List<Appointment> appointments;
             if (key != "" && key != null)
             {
-                return await _db.appointments.Where(x => x.Patient.Name.ToLower().Contains(key) || x.Patient.Sex.ToLower().Contains(key) || x.Patient.Email.ToLower().Contains(key) || x.Patient.City.ToLower().Contains(key) || x.Patient.LocalArea.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                 appointments =  await _db.appointments.Where(x => x.Patient.Name.ToLower().Contains(key) || x.Patient.Sex.ToLower().Contains(key) || x.Patient.Email.ToLower().Contains(key) || x.Patient.City.ToLower().Contains(key) || x.Patient.LocalArea.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else {
-                return await _db.appointments.ToListAsync();
+                appointments = await _db.appointments.ToListAsync();
             }
+             return new Response<List<Appointment>>(true, "Successfully", appointments);
            
         }
 
         // GET api/Appointment/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Appointment>> GetSingle(long id)
+         public async Task<Response<Appointment>> GetSingle(long id)
         {
             var Appointment = await _db.appointments.FirstOrDefaultAsync(x => x.Id == id);
             if (Appointment == null)
-                return NotFound();
-
-            return Appointment;
+                     return new Response<Appointment>(false, "Record not found", null);
+            return new Response<Appointment>(true, "operation succcessful", Appointment);   
         }
 
         // POST api/Appointment

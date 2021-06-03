@@ -22,27 +22,28 @@ namespace dotnet.Controllers
 
         // GET api/Patient
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Patient>>> GetAll(string? key)
+         public async Task<Response<List<Patient>>> GetAll(string? key)
         {
+             List<Patient> patients;
             if (key != "" && key != null)
             {
-                return await _db.patients.Where(x => x.Name.ToLower().Contains(key) || x.Email.ToLower().Contains(key) || x.Contact.ToLower().Contains(key) ||  x.Id.ToString().Contains(key)).ToListAsync();
+                patients= await _db.patients.Where(x => x.Name.ToLower().Contains(key) || x.Email.ToLower().Contains(key) || x.Contact.ToLower().Contains(key) ||  x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                return await _db.patients.ToListAsync();
+                patients= await _db.patients.ToListAsync();
             }
+             return new Response<List<Patient>>(true, "Successfully", patients);
         }
 
         // GET api/Patient/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Patient>> GetSingle(long id)
+        public async Task<Response<Patient>> GetSingle(long id)
         {
             var Patient = await _db.patients.FirstOrDefaultAsync(x => x.Id == id);
             if (Patient == null)
-                return NotFound();
-
-            return Patient;
+                return new Response<Patient>(true, "Record not found", null);
+             return new Response<Patient>(true, "operation succcessful", Patient);
         }
 
         // POST api/Patient

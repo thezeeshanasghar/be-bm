@@ -22,28 +22,32 @@ namespace dotnet.Controllers
 
         // GET api/Expense
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Expense>>> GetAll(string? key)
+         public async Task<Response<List<Expense>>> GetAll(string? key)
         {
+            
             if (key != "" && key != null)
             {
-                return await _db.expenses.Where(x => x.EmployeeName.ToLower().Contains(key) || x.ExpenseCategory.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                var expenses = await _db.expenses.Where(x => x.EmployeeName.ToLower().Contains(key) || x.ExpenseCategory.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync(); 
+                return new Response<List<Expense>>(true, "Successfully", expenses);
             }
             else
             {
-                return await _db.expenses.ToListAsync();
+               var expenses = await _db.expenses.ToListAsync();
+               return new Response<List<Expense>>(true, "Successfully", expenses);
             }
           
         }
 
+
         // GET api/Expense/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Expense>> GetSingle(long id)
+        public async Task<Response<Expense>> GetSingle(long id)
         {
             var Expense = await _db.expenses.FirstOrDefaultAsync(x => x.Id == id);
             if (Expense == null)
-                return NotFound();
+                return new Response<Expense>(false, "Record not found", null);
 
-            return Expense;
+            return new Response<Expense>(true, "operation succcessful", Expense);
         }
 
         // POST api/Expense

@@ -21,27 +21,31 @@ namespace dotnet.Controllers
 
         // GET api/Service
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Service>>> GetAll(string key)
+         public async Task<Response<List<Service>>> GetAll(string key)
         {
+             List<Service> services;
             if (key != "" && key != null)
             {
-                return await _db.services.Where(x => x.Name.ToLower().Contains(key) || x.Description.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                services =  await _db.services.Where(x => x.Name.ToLower().Contains(key) || x.Description.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                return await _db.services.ToListAsync();
+                services = await _db.services.ToListAsync();
             }
+             return new Response<List<Service>>(true, "Successfully", services);
         }
 
         // GET api/Service/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Service>> GetSingle(long id)
+        public async Task<Response<Service>> GetSingle(long id)
         {
             var Service = await _db.services.FirstOrDefaultAsync(x => x.Id == id);
             if (Service == null)
-                return NotFound();
+             {
+                 return new Response<Service>(false, "Record not found", null);
+             }
 
-            return Service;
+            return new Response<Service>(true, "operation succcessful", Service);
         }
 
         // POST api/Service

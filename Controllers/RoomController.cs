@@ -22,27 +22,29 @@ namespace dotnet.Controllers
 
         // GET api/Room
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Room>>> GetAll(string? key)
+         public async Task<Response<List<Room>>> GetAll(string? key)
         {
+             List<Room> rooms;
             if (key != "" && key != null)
             {
-                return await _db.rooms.Where(x => x.RoomNo.ToLower().Contains(key) || x.RoomType.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                rooms = await _db.rooms.Where(x => x.RoomNo.ToLower().Contains(key) || x.RoomType.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                return await _db.rooms.ToListAsync();
+                 rooms =  await _db.rooms.ToListAsync();
             }
+             return new Response<List<Room>>(true, "Successfully", rooms);
         }
 
         // GET api/Room/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Room>> GetSingle(long id)
+        public async Task<Response<Room>> GetSingle(long id)
         {
             var Room = await _db.rooms.FirstOrDefaultAsync(x => x.Id == id);
             if (Room == null)
-                return NotFound();
+                return new Response<Room>(false, "Record not found", null);
 
-            return Room;
+             return new Response<Room>(true, "operation succcessful", Room);
         }
 
         // POST api/Room

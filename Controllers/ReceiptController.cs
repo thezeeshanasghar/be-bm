@@ -22,27 +22,29 @@ namespace dotnet.Controllers
 
         // GET api/Receipt
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Receipt>>> GetAll(string? key)
+          public async Task<Response<List<Receipt>>> GetAll(string? key)
         {
+            List<Receipt> receipts;
             if (key != "" && key != null)
             {
-                return await _db.receipts.Where(x => x.Name.ToLower().Contains(key) || x.Sex.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                receipts = await _db.receipts.Where(x => x.Name.ToLower().Contains(key) || x.Sex.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                return await _db.receipts.ToListAsync();
+                receipts = await _db.receipts.ToListAsync();
             }
+             return new Response<List<Receipt>>(true, "Successfully", receipts);
         }
 
         // GET api/Receipt/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Receipt>> GetSingle(long id)
+        public async Task<Response<Receipt>> GetSingle(long id)
         {
             var Receipt = await _db.receipts.FirstOrDefaultAsync(x => x.Id == id);
             if (Receipt == null)
-                return NotFound();
+                return new Response<Receipt>(false, "Record not found", null);
 
-            return Receipt;
+            return new Response<Receipt>(true, "operation succcessful", Receipt);
         }
 
         // POST api/Receipt

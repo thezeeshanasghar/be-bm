@@ -22,27 +22,29 @@ namespace dotnet.Controllers
 
         // GET api/Procedures
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Procedure>>> GetAll(string? key)
+         public async Task<Response<List<Procedure>>> GetAll(string? key)
         {
+             List<Procedure> procedures;
             if (key != "" && key != null)
             {
-                return await _db.procedures.Where(x => x.Name.ToLower().Contains(key) || x.PerformedBy.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                procedures= await _db.procedures.Where(x => x.Name.ToLower().Contains(key) || x.PerformedBy.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                return await _db.procedures.ToListAsync();
+                procedures= await _db.procedures.ToListAsync();
             }
+            return new Response<List<Procedure>>(true, "Successfully", procedures);
         }
 
         // GET api/Procedures/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Procedure>> GetSingle(long id)
+        public async Task<Response<Procedure>> GetSingle(long id)
         {
             var Procedures = await _db.procedures.FirstOrDefaultAsync(x => x.Id == id);
             if (Procedures == null)
-                return NotFound();
+               return new Response<Procedure>(false, "Record not found", null);
 
-            return Procedures;
+            return new Response<Procedure>(true, "operation succcessful", Procedures);
         }
 
         // POST api/Procedures

@@ -22,27 +22,29 @@ namespace dotnet.Controllers
 
         // GET api/Doctor
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Doctor>>> GetAll(string? key)
+         public async Task<Response<List<Doctor>>> GetAll(string? key)
         {
+            Console.WriteLine("called");
+            List<Doctor> doctors;
             if (key != "" && key != null)
             {
-                return await _db.doctors.Include(x => x.employee).ThenInclude(x => x.Qualifications).Where(x => x.employee.FirstName.ToLower().Contains(key) || x.employee.LastName.ToLower().Contains(key) || x.employee.Email.ToLower().Contains(key) || x.employee.Contact.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                doctors =  await _db.doctors.Include(x => x.employee).ThenInclude(x => x.Qualifications).Where(x => x.employee.FirstName.ToLower().Contains(key) || x.employee.LastName.ToLower().Contains(key) || x.employee.Email.ToLower().Contains(key) || x.employee.Contact.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                return await _db.doctors.Include(x => x.employee).ThenInclude(x => x.Qualifications).ToListAsync();
+                doctors  = await _db.doctors.Include(x => x.employee).ThenInclude(x => x.Qualifications).ToListAsync();
             }
+            return new Response<List<Doctor>>(true, "Successfully", doctors);
         }
 
         // GET api/Doctor/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Doctor>> GetSingle(long id)
+        public async Task<Response<Doctor>> GetSingle(long id)
         {
             var Doctor = await _db.doctors.Include(x=>x.employee).ThenInclude(x=>x.Qualifications).FirstOrDefaultAsync(x => x.Id == id);
             if (Doctor == null)
-                return NotFound();
-
-            return Doctor;
+                return new Response<Doctor>(false, "Record not found", null);
+            return new Response<Doctor>(true, "operation succcessful", Doctor);
         }
 
         // POST api/Doctor

@@ -22,27 +22,29 @@ namespace dotnet.Controllers
 
         // GET api/Payment
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Payment>>> GetAll(string? key)
+          public async Task<Response<List<Payment>>> GetAll(string? key)
         {
+               List<Payment> payments;
             if (key != "" && key != null)
             {
-                return await _db.payments.Where(x => x.Name.ToLower().Contains(key) ||  x.Id.ToString().Contains(key)).ToListAsync();
+                payments = await _db.payments.Where(x => x.Name.ToLower().Contains(key) ||  x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                return await _db.payments.ToListAsync();
+                payments = await _db.payments.ToListAsync();
             }
+             return new Response<List<Payment>>(true, "Successfully", payments);
         }
 
         // GET api/Payment/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Payment>> GetSingle(long id)
+         public async Task<Response<Payment>> GetSingle(long id)
         {
             var Payment = await _db.payments.FirstOrDefaultAsync(x => x.Id == id);
             if (Payment == null)
-                return NotFound();
+                 return new Response<Payment>(false, "Record not found", null);
 
-            return Payment;
+             return new Response<Payment>(true, "operation succcessful", Payment);
         }
 
         // POST api/Payment

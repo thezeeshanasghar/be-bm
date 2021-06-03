@@ -22,27 +22,28 @@ namespace dotnet.Controllers
 
         // GET api/Employee
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Employee>>> GetAll(String? key)
+         public async Task<Response<List<Employee>>> GetAll(String? key)
         {
+            List<Employee> employees;
             if (key != "" && key != null)
             {
-                return await _db.employees.Where(x => x.FirstName.ToLower().Contains(key) || x.LastName.ToLower().Contains(key) || x.Email.ToLower().Contains(key) || x.Contact.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                employees = await _db.employees.Where(x => x.FirstName.ToLower().Contains(key) || x.LastName.ToLower().Contains(key) || x.Email.ToLower().Contains(key) || x.Contact.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                return await _db.employees.ToListAsync();
+                employees = await _db.employees.ToListAsync();
             }
+            return new Response<List<Employee>>(true, "Operation Successful", employees);
         }
 
         // GET api/Employee/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Employee>> GetSingle(long id)
+        public async Task<Response<Employee>> GetSingle(long id)
         {
             var Employee = await _db.employees.FirstOrDefaultAsync(x => x.Id == id);
             if (Employee == null)
-                return NotFound();
-
-            return Employee;
+                return new Response<Employee>(false, "Record not found", null);
+            return new Response<Employee>(true, "Operation Successful", Employee);
         }
 
         // POST api/Employee

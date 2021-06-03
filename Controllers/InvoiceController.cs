@@ -22,28 +22,29 @@ namespace dotnet.Controllers
 
         // GET api/Invoice
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Invoice>>> GetAll(string? key)
+         public async Task<Response<List<Invoice>>> GetAll(string? key)
         {
+              List<Invoice> invoices;
             if (key != "" && key != null)
             {
-                return await _db.invoices.Where(x => x.Appointment.Patient.Name.ToLower().Contains(key) || x.Appointment.Patient.Email.ToLower().Contains(key) || x.Appointment.Patient.Contact.ToLower().Contains(key) || x.Appointment.Patient.City.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+               invoices= await _db.invoices.Where(x => x.Appointment.Patient.Name.ToLower().Contains(key) || x.Appointment.Patient.Email.ToLower().Contains(key) || x.Appointment.Patient.Contact.ToLower().Contains(key) || x.Appointment.Patient.City.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                return await _db.invoices.ToListAsync();
+                invoices =  await _db.invoices.ToListAsync();
             }
+               return new Response<List<Invoice>>(true, "Successfully", invoices);
 
         }
 
         // GET api/Invoice/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Invoice>> GetSingle(long id)
+        public async Task<Response<Invoice>> GetSingle(long id)
         {
             var Invoice = await _db.invoices.FirstOrDefaultAsync(x => x.Id == id);
             if (Invoice == null)
-                return NotFound();
-
-            return Invoice;
+                return new Response<Invoice>(false, "Record not found", null);
+            return new Response<Invoice>(true, "operation succcessful", Invoice);
         }
 
         // POST api/Invoice

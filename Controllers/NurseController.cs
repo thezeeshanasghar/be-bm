@@ -22,27 +22,28 @@ namespace dotnet.Controllers
 
         // GET api/Nurse
         [HttpGet]
-         public async Task<ActionResult<IEnumerable<Nurse>>> GetAll(String? key)
+          public async Task<Response<List<Nurse>>> GetAll(String? key)
         {
+            List<Nurse> nurses;
             if (key != "" && key != null)
             {
-                return await _db.nurses.Include(x => x.Employee).ThenInclude(x=>x.Qualifications).Where(x => x.Employee.FirstName.ToLower().Contains(key) || x.Employee.LastName.ToLower().Contains(key) || x.Employee.Email.ToLower().Contains(key) || x.Employee.Contact.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                nurses = await _db.nurses.Include(x => x.Employee).ThenInclude(x=>x.Qualifications).Where(x => x.Employee.FirstName.ToLower().Contains(key) || x.Employee.LastName.ToLower().Contains(key) || x.Employee.Email.ToLower().Contains(key) || x.Employee.Contact.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                return await _db.nurses.Include(x => x.Employee).ThenInclude(x=>x.Qualifications).ToListAsync();
+                nurses = await _db.nurses.Include(x => x.Employee).ThenInclude(x=>x.Qualifications).ToListAsync();
             }
+             return new Response<List<Nurse>>(true, "Successfully", nurses);
         }
 
         // GET api/Nurse/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Nurse>> GetSingle(long id)
+         public async Task<Response<Nurse>> GetSingle(long id)
         {
             var Nurse = await _db.nurses.Include(x=>x.Employee).ThenInclude(x=>x.Qualifications).FirstOrDefaultAsync(x => x.Id == id);
             if (Nurse == null)
-                return NotFound();
-
-            return Nurse;
+                return new Response<Nurse>(false, "Record not found", null);
+            return new Response<Nurse>(true, "operation succcessful", Nurse);
         }
 
         // POST api/Nurse
