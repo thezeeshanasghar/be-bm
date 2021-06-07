@@ -19,7 +19,29 @@ namespace dotnet.Controllers
         {
             _db = context;
         }
+        // GET api/Patient
+        [HttpGet("Invoices")]
+        public async Task<Response<List<PatientwithAppointment>>> GetInvices()
+        {
 
+            var query = await _db.patients
+        .Join(
+            _db.invoices,
+            Patient => Patient.Id,
+            invoice => invoice.Appointment.PatientId,
+            (Patient, invoice) => new PatientwithAppointment()
+            {
+                Id = invoice.Id,
+                Name = Patient.Name,
+                FatherHusbandName = Patient.FatherHusbandName,
+                Sex = Patient.Sex,
+                Discount = invoice.Discount,
+                NetAmount = invoice.NetAmount
+
+            }).ToListAsync();
+
+            return new Response<List<PatientwithAppointment>>(true, "Operation Successful", query);
+        }
         // GET api/Patient
         [HttpGet("get")]
          public async Task<Response<List<Patient>>> GetAll(string? key)

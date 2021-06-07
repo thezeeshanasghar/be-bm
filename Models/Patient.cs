@@ -37,5 +37,14 @@ namespace dotnet.Models
         public IEnumerable<Patient> patients { get; set; }
         public int Count { get; set; }
     }
+    public class PatientwithAppointment
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string FatherHusbandName { get; set; }
+        public string Sex { get; set; }
+        public double Discount { get; set; }
+        public double NetAmount { get; set; }
+    }
 
 }
