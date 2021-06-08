@@ -9,8 +9,8 @@ using dotnet.Models;
 namespace dotnet.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20210519064002_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20210608074516_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -25,7 +25,7 @@ namespace dotnet.Migrations
 
                     b.Property<string>("AppointmentCode");
 
-                    b.Property<string>("AppointmentDate");
+                    b.Property<DateTime>("AppointmentDate");
 
                     b.Property<int>("PatientId");
 
@@ -49,7 +49,7 @@ namespace dotnet.Migrations
 
                     b.Property<int>("ShareInFee");
 
-                    b.Property<int>("SpecialityType");
+                    b.Property<string>("SpecialityType");
 
                     b.HasKey("Id");
 
@@ -153,8 +153,6 @@ namespace dotnet.Migrations
 
                     b.Property<int>("ProcedureId");
 
-                    b.Property<int?>("ProceduresId");
-
                     b.Property<double>("RefundAmount");
 
                     b.Property<DateTime>("TodayVisitDate");
@@ -165,9 +163,25 @@ namespace dotnet.Migrations
 
                     b.HasIndex("DoctorId");
 
-                    b.HasIndex("ProceduresId");
-
                     b.ToTable("invoices");
+                });
+
+            modelBuilder.Entity("dotnet.Models.InvoiceProcedures", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("InvoiceId");
+
+                    b.Property<int>("ProcedureId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("ProcedureId");
+
+                    b.ToTable("invoiceProcedures");
                 });
 
             modelBuilder.Entity("dotnet.Models.Nurse", b =>
@@ -194,8 +208,6 @@ namespace dotnet.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Address");
 
                     b.Property<string>("BloodGroup");
 
@@ -239,6 +251,8 @@ namespace dotnet.Migrations
 
                     b.Property<string>("Sex");
 
+                    b.Property<string>("cnic");
+
                     b.HasKey("Id");
 
                     b.ToTable("patients");
@@ -256,7 +270,7 @@ namespace dotnet.Migrations
                     b.ToTable("payments");
                 });
 
-            modelBuilder.Entity("dotnet.Models.Procedures", b =>
+            modelBuilder.Entity("dotnet.Models.Procedure", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -285,7 +299,7 @@ namespace dotnet.Migrations
 
                     b.Property<int>("EmployeeId");
 
-                    b.Property<int>("qualificationType");
+                    b.Property<string>("qualificationType");
 
                     b.HasKey("Id");
 
@@ -335,11 +349,13 @@ namespace dotnet.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Availability");
+                    b.Property<int>("RoomCapacity");
 
-                    b.Property<string>("FlourNo");
+                    b.Property<double>("RoomCharges");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("RoomNo");
+
+                    b.Property<string>("RoomType");
 
                     b.HasKey("Id");
 
@@ -363,7 +379,7 @@ namespace dotnet.Migrations
             modelBuilder.Entity("dotnet.Models.Appointment", b =>
                 {
                     b.HasOne("dotnet.Models.Patient", "Patient")
-                        .WithMany()
+                        .WithMany("Appointments")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -379,7 +395,7 @@ namespace dotnet.Migrations
             modelBuilder.Entity("dotnet.Models.Invoice", b =>
                 {
                     b.HasOne("dotnet.Models.Appointment", "Appointment")
-                        .WithMany()
+                        .WithMany("Invoices")
                         .HasForeignKey("AppointmentId")
                         .OnDelete(DeleteBehavior.Cascade);
 
@@ -387,10 +403,19 @@ namespace dotnet.Migrations
                         .WithMany()
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
 
-                    b.HasOne("dotnet.Models.Procedures", "Procedures")
+            modelBuilder.Entity("dotnet.Models.InvoiceProcedures", b =>
+                {
+                    b.HasOne("dotnet.Models.Invoice", "Invoice")
                         .WithMany()
-                        .HasForeignKey("ProceduresId");
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("dotnet.Models.Procedure", "Procedures")
+                        .WithMany()
+                        .HasForeignKey("ProcedureId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("dotnet.Models.Nurse", b =>

@@ -1,4 +1,8 @@
 
+using dotnet.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 public class Response<T>
 {
 
@@ -11,5 +15,4 @@ public class Response<T>
         Message = message;
         Data =  data;
     }
-
 }

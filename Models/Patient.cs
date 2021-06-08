@@ -31,6 +31,7 @@ namespace dotnet.Models
         public string City { get; set; }
         public string LocalArea { get; set; }
         public string PatientDetails { get; set; }
+        public virtual ICollection<Appointment> Appointments { get; set; }
     }
     public class Patients
     {
@@ -41,10 +42,19 @@ namespace dotnet.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public DateTime Dob { get; set; }
+        public string Email { get; set; }
+        public string Contact { get; set; }
+        public string City { get; set; }
+        public string Area { get; set; }
+        public int PatientId { get; set; }
         public string FatherHusbandName { get; set; }
         public string Sex { get; set; }
         public double Discount { get; set; }
         public double NetAmount { get; set; }
+        public string Category { get; set; }
+        public string AppointmentId { get; set; }
+        public DateTime LastAppointmentDate { get; set; }
     }
 
 }

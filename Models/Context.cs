@@ -21,6 +21,7 @@ namespace dotnet.Models {
         public DbSet<Qualifications> qualifications { get; set; }
         public DbSet<Service> services { get; set; }
         public DbSet<Appointment> appointments {get; set;}
+        public DbSet<InvoiceProcedures> invoiceProcedures { get; set;}
 
 
     }

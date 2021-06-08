@@ -13,7 +13,7 @@ namespace dotnet.Controllers
     public class PatientController : ControllerBase
     {
 
-          private readonly Context _db;
+        private readonly Context _db;
 
         public PatientController(Context context)
         {
@@ -21,26 +21,72 @@ namespace dotnet.Controllers
         }
         // GET api/Patient
         [HttpGet("Invoices")]
-        public async Task<Response<List<PatientwithAppointment>>> GetInvices()
+        public Response<List<PatientwithAppointment>> GetInvices(string? Category)
         {
 
-            var query = await _db.patients
-        .Join(
-            _db.invoices,
-            Patient => Patient.Id,
-            invoice => invoice.Appointment.PatientId,
-            (Patient, invoice) => new PatientwithAppointment()
+            var query = from b in _db.Set<Patient>()
+                        join p in _db.Set<Invoice>()
+                            on b.Id equals p.Appointment.PatientId into grouping
+                        from p in grouping.DefaultIfEmpty()
+                        select new PatientwithAppointment()
+                        {
+                            Id = p == null ? 0 : p.Id,
+                            Name = b.Name,
+                            PatientId = b.Id,
+                            Category = b.PatientCategory,
+                            FatherHusbandName = b.FatherHusbandName,
+                            Sex = b.Sex,
+                            Discount = p == null ? 0 : p.Discount,
+                            NetAmount = p == null ? 0 : p.NetAmount
+                        };
+
+            var Invoices=new List<PatientwithAppointment>();
+            if (Category!=null)
             {
-                Id = invoice.Id,
-                Name = Patient.Name,
-                FatherHusbandName = Patient.FatherHusbandName,
-                Sex = Patient.Sex,
-                Discount = invoice.Discount,
-                NetAmount = invoice.NetAmount
+                Invoices=(query).Where(x => x.Category == Category).ToList();
+            }
+            else {
+                Invoices = (query).ToList();
+            }
 
-            }).ToListAsync();
 
-            return new Response<List<PatientwithAppointment>>(true, "Operation Successful", query);
+            return new Response<List<PatientwithAppointment>>(true, "List Generated Syccessfully", Invoices);
+        }
+        // GET api/Patient
+        [HttpGet("ById/Invoices/{Id}")]
+        public  Response<PatientwithAppointment> GetPatientByIds(int Id)
+        {
+
+            var query = _db.patients.Where(x => x.Id == Id).Include(x => x.Appointments).ThenInclude(x => x.Invoices).ToList();
+            PatientwithAppointment PatientwithAppointment = new PatientwithAppointment();
+            foreach (var item in query)
+            {
+                var LastApointment = item.Appointments.OrderByDescending(x => x.Id).FirstOrDefault();
+                var LastInvoice=new Invoice();
+                if (!LastApointment.Equals(null)) {
+                    LastInvoice=LastApointment.Invoices.OrderByDescending(x => x.Id).FirstOrDefault();
+                }
+                PatientwithAppointment = new PatientwithAppointment()
+                {
+                    AppointmentId = LastApointment.AppointmentCode,
+                    Category=item.PatientCategory,
+                    Discount = LastInvoice.Discount,
+                    FatherHusbandName=item.FatherHusbandName,
+                    LastAppointmentDate=LastApointment.AppointmentDate,
+                    Id=LastInvoice.Id,
+                    Name=item.Name,
+                    NetAmount=LastInvoice.NetAmount,
+                    PatientId=item.Id,
+                    Sex=item.Sex,
+                    Area=item.LocalArea,
+                    City=item.City,
+                    Contact=item.Contact,
+                    Dob=item.Dob
+                };
+            }
+
+            return new Response<PatientwithAppointment>(true, "List Generated Syccessfully", PatientwithAppointment);
+
         }
         // GET api/Patient
         [HttpGet("get")]

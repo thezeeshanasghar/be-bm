@@ -18,7 +18,7 @@ namespace dotnet.Models
         public string CheckupType { get; set; }
         public string PaymentType { get; set; }
         public int ProcedureId { get; set; }
-        public virtual Procedure Procedures { get; set; }
+    
         public double  ConsultationFee { get; set; }
         public double Discount { get; set; }
         public double NetAmount { get; set; }

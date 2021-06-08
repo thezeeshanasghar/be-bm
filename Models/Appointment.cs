@@ -12,9 +12,11 @@ namespace dotnet.Models
         public int PatientId { get; set; }
         public virtual Patient Patient { get; set; }
         public string AppointmentCode { get; set; }
-        public string AppointmentDate {get; set;}
-        
-}
+        public DateTime AppointmentDate {get; set;}
+
+        public virtual ICollection<Invoice> Invoices { get; set; }
+
+    }
     public class Appointments
     {
         public IEnumerable<Appointment> appointments { get; set; }
