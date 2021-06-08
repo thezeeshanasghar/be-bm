@@ -33,11 +33,17 @@ namespace dotnet.Controllers
                             Id = p == null ? 0 : p.Id,
                             Name = b.Name,
                             PatientId = b.Id,
-                            Category = b.PatientCategory,
+                            Category = p==null?"":p.Appointment.AppointmentType,
                             FatherHusbandName = b.FatherHusbandName,
                             Sex = b.Sex,
                             Discount = p == null ? 0 : p.Discount,
-                            NetAmount = p == null ? 0 : p.NetAmount
+                            NetAmount = p == null ? 0 : p.NetAmount,
+                            AppointmentId = p == null?"0":p.Appointment.AppointmentCode,
+                            Area=b.LocalArea,
+                            City=b.City,
+                            Contact=b.Contact,
+                            Dob=b.Dob,
+                            Email=b.Email
                         };
 
             var Invoices=new List<PatientwithAppointment>();
@@ -53,7 +59,7 @@ namespace dotnet.Controllers
             return new Response<List<PatientwithAppointment>>(true, "List Generated Syccessfully", Invoices);
         }
         // GET api/Patient
-        [HttpGet("ById/Invoices/{Id}")]
+        [HttpGet("Invoices/get/{Id}")]
         public  Response<PatientwithAppointment> GetPatientByIds(int Id)
         {
 
@@ -61,22 +67,23 @@ namespace dotnet.Controllers
             PatientwithAppointment PatientwithAppointment = new PatientwithAppointment();
             foreach (var item in query)
             {
-                var LastApointment = item.Appointments.OrderByDescending(x => x.Id).FirstOrDefault();
-                var LastInvoice=new Invoice();
-                if (!LastApointment.Equals(null)) {
+                Appointment LastApointment = item.Appointments.OrderByDescending(x => x.Id).FirstOrDefault();
+
+                var LastInvoice =new Invoice();
+                if (LastApointment!=null) {
                     LastInvoice=LastApointment.Invoices.OrderByDescending(x => x.Id).FirstOrDefault();
                 }
                 PatientwithAppointment = new PatientwithAppointment()
                 {
-                    AppointmentId = LastApointment.AppointmentCode,
-                    Category=item.PatientCategory,
-                    Discount = LastInvoice.Discount,
-                    FatherHusbandName=item.FatherHusbandName,
-                    LastAppointmentDate=LastApointment.AppointmentDate,
-                    Id=LastInvoice.Id,
-                    Name=item.Name,
-                    NetAmount=LastInvoice.NetAmount,
-                    PatientId=item.Id,
+                    AppointmentId = LastApointment != null ? LastApointment.AppointmentCode : "",
+                    Category =item.PatientCategory,
+                    Discount = LastInvoice.Id> 0 ? LastInvoice.Discount : 0,
+                    FatherHusbandName =item.FatherHusbandName,
+                    LastAppointmentDate = LastApointment != null ? LastApointment.AppointmentDate : DateTime.Now,
+                    Id = LastInvoice.Id>0 ? LastInvoice.Id : 0,
+                    Name = item.Name,
+                    NetAmount = LastInvoice.Id>0 ? LastInvoice.NetAmount : 0,
+                    PatientId =item.Id,
                     Sex=item.Sex,
                     Area=item.LocalArea,
                     City=item.City,
