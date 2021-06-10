@@ -25,20 +25,23 @@ namespace dotnet.Controllers
         {
 
             var query = from b in _db.Set<Patient>()
-                        join p in _db.Set<Invoice>()
-                            on b.Id equals p.Appointment.PatientId into grouping
-                        from p in grouping.DefaultIfEmpty()
+                        join p in _db.Set<Appointment>()
+                            on b.Id equals p.PatientId 
+                         join s in _db.Set<Invoice>()
+                          on p.Id equals s.AppointmentId
+                            into grouping
+                        from s in grouping.DefaultIfEmpty()
                         select new PatientwithAppointment()
                         {
                             Id = p == null ? 0 : p.Id,
                             Name = b.Name,
                             PatientId = b.Id,
-                            Category = b.PatientCategory,
+                            Category = p.AppointmentType,
                             FatherHusbandName = b.FatherHusbandName,
                             Sex = b.Sex,
-                            Discount = p == null ? 0 : p.Discount,
-                            NetAmount = p == null ? 0 : p.NetAmount,
-                            AppointmentId = p == null?0:p.Appointment.Id,
+                            Discount = s == null ? 0 : s.Discount,
+                            NetAmount = s == null ? 0 : s.NetAmount,
+                            AppointmentId = p == null?0:p.Id,
                             Area=b.LocalArea,
                             City=b.City,
                             Contact=b.Contact,
@@ -127,9 +130,20 @@ namespace dotnet.Controllers
         }
 
         // POST api/Patient
-       [HttpPost("insert")]
-        public async Task<ActionResult<Patient>> Post(Patient Patient)
+       [HttpPost("insert/{AppointmentType}")]
+        public async Task<ActionResult<Patient>> Post(Patient Patient,String AppointmentType)
         {
+          string Code =  DateTime.Now.Year + DateTime.Now.Month + DateTime.Now.Day + "-" + DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second;
+            Appointment appointments = new Appointment();
+            List<Appointment> appointmentList = new List<Appointment>();
+
+            appointments.AppointmentType = AppointmentType;
+            appointments.AppointmentDate = DateTime.Now;
+            appointments.AppointmentCode = Code;
+            appointmentList.Add(appointments);
+
+            Patient.Appointments= appointmentList;
+
             _db.patients.Update(Patient);
             
             await _db.SaveChangesAsync();
