@@ -33,12 +33,12 @@ namespace dotnet.Controllers
                             Id = p == null ? 0 : p.Id,
                             Name = b.Name,
                             PatientId = b.Id,
-                            Category = p==null?"":p.Appointment.AppointmentType,
+                            Category = b.PatientCategory,
                             FatherHusbandName = b.FatherHusbandName,
                             Sex = b.Sex,
                             Discount = p == null ? 0 : p.Discount,
                             NetAmount = p == null ? 0 : p.NetAmount,
-                            AppointmentId = p == null?"0":p.Appointment.AppointmentCode,
+                            AppointmentId = p == null?0:p.Appointment.Id,
                             Area=b.LocalArea,
                             City=b.City,
                             Contact=b.Contact,
@@ -70,25 +70,30 @@ namespace dotnet.Controllers
                 Appointment LastApointment = item.Appointments.OrderByDescending(x => x.Id).FirstOrDefault();
 
                 var LastInvoice =new Invoice();
-                if (LastApointment!=null) {
-                    LastInvoice=LastApointment.Invoices.OrderByDescending(x => x.Id).FirstOrDefault();
+                if (LastApointment != null)
+                {
+                    LastInvoice = LastApointment.Invoices.OrderByDescending(x => x.Id).FirstOrDefault();
+                }
+                else {
+                    LastInvoice = null;
                 }
                 PatientwithAppointment = new PatientwithAppointment()
                 {
-                    AppointmentId = LastApointment != null ? LastApointment.AppointmentCode : "",
+                    AppointmentId = LastApointment != null ? LastApointment.Id : 0,
                     Category =item.PatientCategory,
-                    Discount = LastInvoice.Id> 0 ? LastInvoice.Discount : 0,
+                    Discount = LastInvoice != null ? LastInvoice.Discount : 0,
                     FatherHusbandName =item.FatherHusbandName,
                     LastAppointmentDate = LastApointment != null ? LastApointment.AppointmentDate : DateTime.Now,
-                    Id = LastInvoice.Id>0 ? LastInvoice.Id : 0,
+                    Id = LastInvoice != null ? LastInvoice.Id : 0,
                     Name = item.Name,
-                    NetAmount = LastInvoice.Id>0 ? LastInvoice.NetAmount : 0,
+                    NetAmount = LastInvoice != null ? LastInvoice.NetAmount : 0,
                     PatientId =item.Id,
                     Sex=item.Sex,
                     Area=item.LocalArea,
                     City=item.City,
                     Contact=item.Contact,
-                    Dob=item.Dob
+                    Dob=item.Dob,
+                    Email=item.Email
                 };
             }
 

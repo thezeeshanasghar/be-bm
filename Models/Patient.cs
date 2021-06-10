@@ -53,7 +53,7 @@ namespace dotnet.Models
         public double Discount { get; set; }
         public double NetAmount { get; set; }
         public string Category { get; set; }
-        public string AppointmentId { get; set; }
+        public int AppointmentId { get; set; }
         public DateTime LastAppointmentDate { get; set; }
     }
 
