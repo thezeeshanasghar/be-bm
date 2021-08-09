@@ -9,17 +9,18 @@ namespace dotnet.Models
     public class Patient
     {
         public int Id { get; set; }
+        public virtual User UserObject { get; set; }
         public string PatientCategory { get; set; }
         public string Name { get; set; }
         public string FatherHusbandName { get; set; }
         public DateTime Dob { get; set; }
         public string Sex { get; set; }
-        public string PlaceofBirth {get;set;}
+        public string PlaceofBirth { get; set; }
         public string Email { get; set; }
         public string Contact { get; set; }
-        public string cnic { get; set; }
+        public string Cnic { get; set; }
         public string MaritalStatus { get; set; }
-       public string PatientType { get; set; }
+        public string PatientType { get; set; }
         public string ExternalId { get; set; }
         public string BloodGroup { get; set; }
         public string ClinicSite { get; set; }
@@ -35,7 +36,7 @@ namespace dotnet.Models
     }
     public class Patients
     {
-        public IEnumerable<Patient> patients { get; set; }
+        public IEnumerable<Patient> PatientsList { get; set; }
         public int Count { get; set; }
     }
     public class PatientwithAppointment

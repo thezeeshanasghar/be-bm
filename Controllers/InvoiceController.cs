@@ -13,7 +13,7 @@ namespace dotnet.Controllers
     public class InvoiceController : ControllerBase
     {
 
-          private readonly Context _db;
+        private readonly Context _db;
 
         public InvoiceController(Context context)
         {
@@ -22,18 +22,18 @@ namespace dotnet.Controllers
 
         // GET api/Invoice
         [HttpGet("get")]
-         public async Task<Response<List<Invoice>>> GetAll(string? key)
+        public async Task<Response<List<Invoice>>> GetAll(string key)
         {
-              List<Invoice> invoices;
+            List<Invoice> InvoiceList;
             if (key != "" && key != null)
             {
-               invoices= await _db.invoices.Where(x => x.Appointment.Patient.Name.ToLower().Contains(key) || x.Appointment.Patient.Email.ToLower().Contains(key) || x.Appointment.Patient.Contact.ToLower().Contains(key) || x.Appointment.Patient.City.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                InvoiceList = await _db.Invoices.Where(x => x.Appointment.Patient.Name.ToLower().Contains(key) || x.Appointment.Patient.Email.ToLower().Contains(key) || x.Appointment.Patient.Contact.ToLower().Contains(key) || x.Appointment.Patient.City.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                invoices =  await _db.invoices.ToListAsync();
+                InvoiceList = await _db.Invoices.ToListAsync();
             }
-               return new Response<List<Invoice>>(true, "Successfully", invoices);
+            return new Response<List<Invoice>>(true, "Successfully", InvoiceList);
 
         }
 
@@ -41,25 +41,25 @@ namespace dotnet.Controllers
         [HttpGet("get/{id}")]
         public async Task<Response<Invoice>> GetSingle(long id)
         {
-            var Invoice = await _db.invoices.FirstOrDefaultAsync(x => x.Id == id);
+            var Invoice = await _db.Invoices.FirstOrDefaultAsync(x => x.Id == id);
             if (Invoice == null)
                 return new Response<Invoice>(false, "Record not found", null);
             return new Response<Invoice>(true, "operation succcessful", Invoice);
         }
 
         // POST api/Invoice
-       [HttpPost("insert")]
+        [HttpPost("insert")]
         public async Task<ActionResult<Invoice>> Post(Invoice Invoice)
         {
-            _db.invoices.Update(Invoice);
-            
+            _db.Invoices.Update(Invoice);
+
             await _db.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetSingle), new { id = Invoice.Id }, Invoice);
         }
 
         // PUT api/Invoice/5
-       [HttpPut("update/{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Invoice Invoice)
         {
             if (id != Invoice.Id)
@@ -74,12 +74,12 @@ namespace dotnet.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var Invoice = await _db.invoices.FindAsync(id);
+            var Invoice = await _db.Invoices.FindAsync(id);
 
             if (Invoice == null)
                 return NotFound();
 
-            _db.invoices.Remove(Invoice);
+            _db.Invoices.Remove(Invoice);
             await _db.SaveChangesAsync();
             return NoContent();
         }

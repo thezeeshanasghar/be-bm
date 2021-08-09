@@ -14,12 +14,12 @@ namespace dotnet.Models
         public DateTime TodayVisitDate { get; set; }
         public int DoctorId { get; set; }
         public virtual Doctor Doctor { get; set; }
-       
+
         public string CheckupType { get; set; }
         public string PaymentType { get; set; }
         public int ProcedureId { get; set; }
-    
-        public double  ConsultationFee { get; set; }
+
+        public double ConsultationFee { get; set; }
         public double Discount { get; set; }
         public double NetAmount { get; set; }
         public double Disposibles { get; set; }

@@ -12,7 +12,7 @@ namespace dotnet.Controllers
     public class ServiceController : ControllerBase
     {
 
-          private readonly Context _db;
+        private readonly Context _db;
 
         public ServiceController(Context context)
         {
@@ -21,46 +21,46 @@ namespace dotnet.Controllers
 
         // GET api/Service
         [HttpGet("get")]
-         public async Task<Response<List<Service>>> GetAll(string key)
+        public async Task<Response<List<Service>>> GetAll(string key)
         {
-             List<Service> services;
+            List<Service> ServiceList;
             if (key != "" && key != null)
             {
-                services =  await _db.services.Where(x => x.Name.ToLower().Contains(key) || x.Description.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                ServiceList = await _db.Services.Where(x => x.Name.ToLower().Contains(key) || x.Description.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                services = await _db.services.ToListAsync();
+                ServiceList = await _db.Services.ToListAsync();
             }
-             return new Response<List<Service>>(true, "Successfully", services);
+            return new Response<List<Service>>(true, "Successfully", ServiceList);
         }
 
         // GET api/Service/5
         [HttpGet("get/{id}")]
         public async Task<Response<Service>> GetSingle(long id)
         {
-            var Service = await _db.services.FirstOrDefaultAsync(x => x.Id == id);
+            var Service = await _db.Services.FirstOrDefaultAsync(x => x.Id == id);
             if (Service == null)
-             {
-                 return new Response<Service>(false, "Record not found", null);
-             }
+            {
+                return new Response<Service>(false, "Record not found", null);
+            }
 
             return new Response<Service>(true, "operation succcessful", Service);
         }
 
         // POST api/Service
-       [HttpPost("insert")]
+        [HttpPost("insert")]
         public async Task<ActionResult<Service>> Post(Service Service)
         {
-            _db.services.Update(Service);
-            
+            _db.Services.Update(Service);
+
             await _db.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetSingle), new { id = Service.Id }, Service);
         }
 
         // PUT api/Service/5
-       [HttpPut("update/{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Service Service)
         {
             if (id != Service.Id)
@@ -75,12 +75,12 @@ namespace dotnet.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var Service = await _db.services.FindAsync(id);
+            var Service = await _db.Services.FindAsync(id);
 
             if (Service == null)
                 return NotFound();
 
-            _db.services.Remove(Service);
+            _db.Services.Remove(Service);
             await _db.SaveChangesAsync();
             return NoContent();
         }

@@ -9,8 +9,8 @@ using dotnet.Models;
 namespace dotnet.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20210608074516_Initial")]
-    partial class Initial
+    [Migration("20210805062843_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -27,13 +27,15 @@ namespace dotnet.Migrations
 
                     b.Property<DateTime>("AppointmentDate");
 
+                    b.Property<string>("AppointmentType");
+
                     b.Property<int>("PatientId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("appointments");
+                    b.ToTable("Appointments");
                 });
 
             modelBuilder.Entity("dotnet.Models.Doctor", b =>
@@ -45,57 +47,17 @@ namespace dotnet.Migrations
 
                     b.Property<int>("EmergencyConsultationFee");
 
-                    b.Property<int>("EmployeeId");
-
                     b.Property<int>("ShareInFee");
 
                     b.Property<string>("SpecialityType");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("doctors");
-                });
-
-            modelBuilder.Entity("dotnet.Models.Employee", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Address");
-
-                    b.Property<string>("CNIC");
-
-                    b.Property<string>("Contact");
-
-                    b.Property<string>("Email");
-
-                    b.Property<string>("EmergencyContact");
-
-                    b.Property<string>("EmployeeType");
-
-                    b.Property<string>("Experience");
-
-                    b.Property<string>("FatherHusbandName");
-
-                    b.Property<string>("FirstName");
-
-                    b.Property<int>("FlourNo");
-
-                    b.Property<string>("Gender");
-
-                    b.Property<DateTime>("JoiningDate");
-
-                    b.Property<string>("LastName");
-
-                    b.Property<string>("Password");
-
-                    b.Property<string>("UserName");
+                    b.Property<int>("UserId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("employees");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Doctors");
                 });
 
             modelBuilder.Entity("dotnet.Models.Expense", b =>
@@ -121,7 +83,7 @@ namespace dotnet.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("expenses");
+                    b.ToTable("Expenses");
                 });
 
             modelBuilder.Entity("dotnet.Models.Invoice", b =>
@@ -163,7 +125,7 @@ namespace dotnet.Migrations
 
                     b.HasIndex("DoctorId");
 
-                    b.ToTable("invoices");
+                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("dotnet.Models.InvoiceProcedures", b =>
@@ -181,7 +143,23 @@ namespace dotnet.Migrations
 
                     b.HasIndex("ProcedureId");
 
-                    b.ToTable("invoiceProcedures");
+                    b.ToTable("InvoiceProcedures");
+                });
+
+            modelBuilder.Entity("dotnet.Models.Login", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Password");
+
+                    b.Property<int>("UserId");
+
+                    b.Property<string>("UserName");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Login");
                 });
 
             modelBuilder.Entity("dotnet.Models.Nurse", b =>
@@ -191,17 +169,17 @@ namespace dotnet.Migrations
 
                     b.Property<int>("DutyDuration");
 
-                    b.Property<int>("EmployeeId");
-
                     b.Property<double>("Salary");
 
                     b.Property<int>("SharePercentage");
 
+                    b.Property<int>("UserId");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("nurses");
+                    b.ToTable("Nurses");
                 });
 
             modelBuilder.Entity("dotnet.Models.Patient", b =>
@@ -214,6 +192,8 @@ namespace dotnet.Migrations
                     b.Property<string>("City");
 
                     b.Property<string>("ClinicSite");
+
+                    b.Property<string>("Cnic");
 
                     b.Property<string>("Contact");
 
@@ -251,11 +231,13 @@ namespace dotnet.Migrations
 
                     b.Property<string>("Sex");
 
-                    b.Property<string>("cnic");
+                    b.Property<int?>("UserObjectId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("patients");
+                    b.HasIndex("UserObjectId");
+
+                    b.ToTable("Patients");
                 });
 
             modelBuilder.Entity("dotnet.Models.Payment", b =>
@@ -267,7 +249,7 @@ namespace dotnet.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("payments");
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("dotnet.Models.Procedure", b =>
@@ -285,10 +267,10 @@ namespace dotnet.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("procedures");
+                    b.ToTable("Procedures");
                 });
 
-            modelBuilder.Entity("dotnet.Models.Qualifications", b =>
+            modelBuilder.Entity("dotnet.Models.Qualification", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -297,15 +279,15 @@ namespace dotnet.Migrations
 
                     b.Property<string>("Description");
 
-                    b.Property<int>("EmployeeId");
+                    b.Property<string>("QualificationType");
 
-                    b.Property<string>("qualificationType");
+                    b.Property<int>("UserId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("qualifications");
+                    b.ToTable("Qualifications");
                 });
 
             modelBuilder.Entity("dotnet.Models.Receipt", b =>
@@ -341,7 +323,7 @@ namespace dotnet.Migrations
 
                     b.HasIndex("PaymentId");
 
-                    b.ToTable("receipts");
+                    b.ToTable("Receipts");
                 });
 
             modelBuilder.Entity("dotnet.Models.Room", b =>
@@ -359,7 +341,7 @@ namespace dotnet.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("rooms");
+                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("dotnet.Models.Service", b =>
@@ -373,7 +355,43 @@ namespace dotnet.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("services");
+                    b.ToTable("Services");
+                });
+
+            modelBuilder.Entity("dotnet.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Address");
+
+                    b.Property<string>("Cnic");
+
+                    b.Property<string>("Contact");
+
+                    b.Property<string>("Email");
+
+                    b.Property<string>("EmergencyContact");
+
+                    b.Property<string>("Experience");
+
+                    b.Property<string>("FatherHusbandName");
+
+                    b.Property<string>("FirstName");
+
+                    b.Property<int>("FloorNo");
+
+                    b.Property<string>("Gender");
+
+                    b.Property<DateTime>("JoiningDate");
+
+                    b.Property<string>("LastName");
+
+                    b.Property<string>("UserType");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("dotnet.Models.Appointment", b =>
@@ -386,9 +404,9 @@ namespace dotnet.Migrations
 
             modelBuilder.Entity("dotnet.Models.Doctor", b =>
                 {
-                    b.HasOne("dotnet.Models.Employee", "employee")
+                    b.HasOne("dotnet.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("EmployeeId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -420,17 +438,24 @@ namespace dotnet.Migrations
 
             modelBuilder.Entity("dotnet.Models.Nurse", b =>
                 {
-                    b.HasOne("dotnet.Models.Employee", "Employee")
+                    b.HasOne("dotnet.Models.User", "UserObject")
                         .WithMany()
-                        .HasForeignKey("EmployeeId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("dotnet.Models.Qualifications", b =>
+            modelBuilder.Entity("dotnet.Models.Patient", b =>
                 {
-                    b.HasOne("dotnet.Models.Employee", "Employee")
+                    b.HasOne("dotnet.Models.User", "UserObject")
+                        .WithMany()
+                        .HasForeignKey("UserObjectId");
+                });
+
+            modelBuilder.Entity("dotnet.Models.Qualification", b =>
+                {
+                    b.HasOne("dotnet.Models.User", "user")
                         .WithMany("Qualifications")
-                        .HasForeignKey("EmployeeId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

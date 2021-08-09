@@ -12,7 +12,7 @@ namespace dotnet.Models
         public int PatientId { get; set; }
         public virtual Patient Patient { get; set; }
         public string AppointmentCode { get; set; }
-        public DateTime AppointmentDate {get; set;}
+        public DateTime AppointmentDate { get; set; }
         public string AppointmentType { get; set; }
         public virtual ICollection<Invoice> Invoices { get; set; }
 

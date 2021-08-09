@@ -12,9 +12,9 @@ namespace dotnet.Models
         public string RoomNo { get; set; }
         public string RoomType { get; set; }
         public int RoomCapacity { get; set; }
-        public double RoomCharges {get; set;}
-        
-}
+        public double RoomCharges { get; set; }
+
+    }
     public class Rooms
     {
         public IEnumerable<Room> rooms { get; set; }

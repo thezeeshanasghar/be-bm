@@ -12,101 +12,190 @@ namespace dotnet.Controllers
     [ApiController]
     public class DoctorController : ControllerBase
     {
-
-          private readonly Context _db;
+        private readonly Context _db;
 
         public DoctorController(Context context)
         {
             _db = context;
         }
 
-        // GET api/Doctor
         [HttpGet("get")]
-         public async Task<Response<List<Doctor>>> GetAll(string? key)
+        public async Task<Response<List<Doctor>>> GetItems()
         {
-            List<Doctor> doctors;
-            if (key != "" && key != null)
+            try
             {
-                doctors =  await _db.doctors.Include(x => x.employee).ThenInclude(x => x.Qualifications).Where(x => x.employee.FirstName.ToLower().Contains(key) || x.employee.LastName.ToLower().Contains(key) || x.employee.Email.ToLower().Contains(key) || x.employee.Contact.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                List<Doctor> doctorList = await _db.Doctors.ToListAsync();
+                if (doctorList != null && doctorList.Count > 0)
+                {
+                    return new Response<List<Doctor>>(true, "Success: Acquired data.", doctorList);
+                }
+                else
+                {
+                    return new Response<List<Doctor>>(false, "Failure: Data does not exist.", null);
+                }
             }
-            else
+            catch (Exception exception)
             {
-                doctors  = await _db.doctors.Include(x => x.employee).ThenInclude(x => x.Qualifications).ToListAsync();
+                return new Response<List<Doctor>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
-            return new Response<List<Doctor>>(true, "Successfully", doctors);
         }
 
-        // GET api/Doctor/5
         [HttpGet("get/{id}")]
-        public async Task<Response<Doctor>> GetSingle(long id)
+        public async Task<Response<Doctor>> GetItemById(long id)
         {
-            var Doctor = await _db.doctors.Include(x=>x.employee).ThenInclude(x=>x.Qualifications).FirstOrDefaultAsync(x => x.Id == id);
-            if (Doctor == null)
-                return new Response<Doctor>(false, "Record not found", null);
-            return new Response<Doctor>(true, "operation succcessful", Doctor);
+            try
+            {
+                Doctor doctorObject = await _db.Doctors.FirstOrDefaultAsync(x => x.Id == id);
+                if (doctorObject != null)
+                {
+                    return new Response<Doctor>(true, "Success: Acquired data.", doctorObject);
+                }
+                else
+                {
+                    return new Response<Doctor>(false, "Failure: Data doesnot exist.", null);
+                }
+            }
+            catch (Exception exception)
+            {
+                return new Response<Doctor>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+            }
         }
 
-        // POST api/Doctor
-       [HttpPost("insert")]
-        public async Task<ActionResult<Doctor>> Post(Doctor Doctor)
+        [HttpPost("insert")]
+        public async Task<Response<Doctor>> InsertItem(DoctorRequest doctorRequest)
         {
-            _db.doctors.Update(Doctor);
-            
-            await _db.SaveChangesAsync();
+            try
+            {
+                User user = new User();
+                user.UserType = doctorRequest.UserType;
+                user.FirstName = doctorRequest.FirstName;
+                user.LastName = doctorRequest.LastName;
+                user.FatherHusbandName = doctorRequest.FatherHusbandName;
+                user.Gender = doctorRequest.Gender;
+                user.Cnic = doctorRequest.Cnic;
+                user.Contact = doctorRequest.Contact;
+                user.EmergencyContact = doctorRequest.EmergencyContact;
+                user.Email = doctorRequest.Email;
+                user.Address = doctorRequest.Address;
+                user.JoiningDate = doctorRequest.JoiningDate;
+                user.FloorNo = doctorRequest.FloorNo;
+                user.Experience = doctorRequest.Experience;
+                await _db.Users.AddAsync(user);
+                await _db.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetSingle), new { id = Doctor.Id }, Doctor);
+                foreach (QualificationRequest drQualification in doctorRequest.QualificationList)
+                {
+                    Qualification qualification = new Qualification();
+                    qualification.UserId = user.Id;
+                    qualification.Certificate = drQualification.Certificate;
+                    qualification.Description = drQualification.Description;
+                    qualification.QualificationType = drQualification.QualificationType;
+                    await _db.Qualifications.AddAsync(qualification);
+                    await _db.SaveChangesAsync();
+                }
+
+                Doctor doctor = new Doctor();
+                doctor.UserId = user.Id;
+                doctor.ConsultationFee = doctorRequest.ConsultationFee;
+                doctor.EmergencyConsultationFee = doctorRequest.EmergencyConsultationFee;
+                doctor.ShareInFee = doctorRequest.ShareInFee;
+                doctor.SpecialityType = doctorRequest.SpecialityType;
+                await _db.Doctors.AddAsync(doctor);
+                await _db.SaveChangesAsync();
+
+                return new Response<Doctor>(true, "Success: Created object.", doctor);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Doctor>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+            }
         }
 
-        // PUT api/Doctor/5
-       [HttpPut("update/{id}")]
-        public async Task<IActionResult> Put(long id, Doctor Doctor)
+        [HttpPut("update/{id}")]
+        public async Task<Response<Doctor>> UpdateItem(long id, DoctorRequest doctorRequest)
         {
             using var transaction = _db.Database.BeginTransaction();
             try
             {
-                if (id != Doctor.Id)
-                    return BadRequest();
-
-                _db.Entry(Doctor).State = EntityState.Modified;
-
-                _db.Entry(Doctor.employee).State = EntityState.Modified;
-                foreach (Qualifications qualification in Doctor.employee.Qualifications)
+                if (id != doctorRequest.Id)
                 {
-                  var resp=  _db.qualifications.Where(x => x.Id == qualification.Id).FirstOrDefault();
-                    if (resp != null)
+                    return new Response<Doctor>(false, "Failure: Id sent in body does not match object Id", null);
+                }
+                User user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+                if (user == null)
+                {
+                    return new Response<Doctor>(false, "Failure: Data doesnot exist.", null);
+                }
+                user.UserType = doctorRequest.UserType;
+                user.FirstName = doctorRequest.FirstName;
+                user.LastName = doctorRequest.LastName;
+                user.FatherHusbandName = doctorRequest.FatherHusbandName;
+                user.Gender = doctorRequest.Gender;
+                user.Cnic = doctorRequest.Cnic;
+                user.Contact = doctorRequest.Contact;
+                user.EmergencyContact = doctorRequest.EmergencyContact;
+                user.Email = doctorRequest.Email;
+                user.Address = doctorRequest.Address;
+                user.JoiningDate = doctorRequest.JoiningDate;
+                user.FloorNo = doctorRequest.FloorNo;
+                user.Experience = doctorRequest.Experience;
+                await _db.SaveChangesAsync();
+
+                foreach (QualificationRequest drQualification in doctorRequest.QualificationList)
+                {
+                    Qualification qualification = await _db.Qualifications.FirstOrDefaultAsync(x => x.Id == drQualification.Id);
+                    if (qualification == null)
                     {
-                        _db.Entry(qualification).State = EntityState.Modified;
+                        transaction.Rollback();
+                        return new Response<Doctor>(false, $"Failure: Unable to update qualification {drQualification.Certificate}. Because Id is invalid. ", null);
                     }
-                    else {
-                        qualification.Id =0;
-                        _db.qualifications.Update(qualification);
-                    }
-                  
+                    qualification.Certificate = drQualification.Certificate;
+                    qualification.Description = drQualification.Description;
+                    qualification.QualificationType = drQualification.QualificationType;
                     await _db.SaveChangesAsync();
                 }
+
+                Doctor doctor = await _db.Doctors.FirstOrDefaultAsync(x => x.UserId == id); ;
+                if (doctor == null)
+                {
+                    transaction.Rollback();
+                    return new Response<Doctor>(false, $"Failure: Unable to update doctor {doctorRequest.FirstName}. Because Id is invalid. ", null);
+                }
+                doctor.ConsultationFee = doctorRequest.ConsultationFee;
+                doctor.EmergencyConsultationFee = doctorRequest.EmergencyConsultationFee;
+                doctor.ShareInFee = doctorRequest.ShareInFee;
+                doctor.SpecialityType = doctorRequest.SpecialityType;
+
                 await _db.SaveChangesAsync();
                 transaction.Commit();
-
+                
+                return new Response<Doctor>(true, "Success: Updated object.", doctor);
             }
-            catch (Exception ex) {
+            catch (Exception exception)
+            {
                 transaction.Rollback();
+                return new Response<Doctor>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
             }
-           
-            return NoContent();
         }
 
-        // DELETE api/Doctor/5
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<Response<Doctor>> DeleteItemById(int id)
         {
-            var Doctor = await _db.doctors.FindAsync(id);
-
-            if (Doctor == null)
-                return NotFound();
-
-            _db.doctors.Remove(Doctor);
-            await _db.SaveChangesAsync();
-            return NoContent();
+            try
+            {
+                User user = await _db.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return new Response<Doctor>(false, "Failure: Object doesnot exist.", null);
+                }
+                _db.Users.Remove(user);
+                await _db.SaveChangesAsync();
+                return new Response<Doctor>(true, "Success: Object deleted.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Doctor>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+            }
         }
     }
 }

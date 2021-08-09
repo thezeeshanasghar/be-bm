@@ -12,8 +12,7 @@ namespace dotnet.Controllers
     [ApiController]
     public class ExpenseController : ControllerBase
     {
-
-          private readonly Context _db;
+        private readonly Context _db;
 
         public ExpenseController(Context context)
         {
@@ -22,20 +21,20 @@ namespace dotnet.Controllers
 
         // GET api/Expense
         [HttpGet("get")]
-         public async Task<Response<List<Expense>>> GetAll(string? key)
+        public async Task<Response<List<Expense>>> GetAll(string key)
         {
-            
+
             if (key != "" && key != null)
             {
-                var expenses = await _db.expenses.Where(x => x.EmployeeName.ToLower().Contains(key) || x.ExpenseCategory.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync(); 
+                var expenses = await _db.Expenses.Where(x => x.EmployeeName.ToLower().Contains(key) || x.ExpenseCategory.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
                 return new Response<List<Expense>>(true, "Successfully", expenses);
             }
             else
             {
-               var expenses = await _db.expenses.ToListAsync();
-               return new Response<List<Expense>>(true, "Successfully", expenses);
+                var expenses = await _db.Expenses.ToListAsync();
+                return new Response<List<Expense>>(true, "Successfully", expenses);
             }
-          
+
         }
 
 
@@ -43,7 +42,7 @@ namespace dotnet.Controllers
         [HttpGet("get/{id}")]
         public async Task<Response<Expense>> GetSingle(long id)
         {
-            var Expense = await _db.expenses.FirstOrDefaultAsync(x => x.Id == id);
+            var Expense = await _db.Expenses.FirstOrDefaultAsync(x => x.Id == id);
             if (Expense == null)
                 return new Response<Expense>(false, "Record not found", null);
 
@@ -51,18 +50,18 @@ namespace dotnet.Controllers
         }
 
         // POST api/Expense
-       [HttpPost("insert")]
+        [HttpPost("insert")]
         public async Task<ActionResult<Expense>> Post(Expense Expense)
         {
-            _db.expenses.Update(Expense);
-            
+            _db.Expenses.Update(Expense);
+
             await _db.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetSingle), new { id = Expense.Id }, Expense);
         }
 
         // PUT api/Expense/5
-       [HttpPut("update/{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Expense Expense)
         {
             if (id != Expense.Id)
@@ -77,12 +76,12 @@ namespace dotnet.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var Expense = await _db.expenses.FindAsync(id);
+            var Expense = await _db.Expenses.FindAsync(id);
 
             if (Expense == null)
                 return NotFound();
 
-            _db.expenses.Remove(Expense);
+            _db.Expenses.Remove(Expense);
             await _db.SaveChangesAsync();
             return NoContent();
         }

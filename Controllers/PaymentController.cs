@@ -13,7 +13,7 @@ namespace dotnet.Controllers
     public class PaymentController : ControllerBase
     {
 
-          private readonly Context _db;
+        private readonly Context _db;
 
         public PaymentController(Context context)
         {
@@ -22,44 +22,44 @@ namespace dotnet.Controllers
 
         // GET api/Payment
         [HttpGet("get")]
-          public async Task<Response<List<Payment>>> GetAll(string? key)
+        public async Task<Response<List<Payment>>> GetAll(string key)
         {
-               List<Payment> payments;
+            List<Payment> PaymentList;
             if (key != "" && key != null)
             {
-                payments = await _db.payments.Where(x => x.Name.ToLower().Contains(key) ||  x.Id.ToString().Contains(key)).ToListAsync();
+                PaymentList = await _db.Payments.Where(x => x.Name.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                payments = await _db.payments.ToListAsync();
+                PaymentList = await _db.Payments.ToListAsync();
             }
-             return new Response<List<Payment>>(true, "Successfully", payments);
+            return new Response<List<Payment>>(true, "Successfully", PaymentList);
         }
 
         // GET api/Payment/5
         [HttpGet("get/{id}")]
-         public async Task<Response<Payment>> GetSingle(long id)
+        public async Task<Response<Payment>> GetSingle(long id)
         {
-            var Payment = await _db.payments.FirstOrDefaultAsync(x => x.Id == id);
+            var Payment = await _db.Payments.FirstOrDefaultAsync(x => x.Id == id);
             if (Payment == null)
-                 return new Response<Payment>(false, "Record not found", null);
+                return new Response<Payment>(false, "Record not found", null);
 
-             return new Response<Payment>(true, "operation succcessful", Payment);
+            return new Response<Payment>(true, "operation succcessful", Payment);
         }
 
         // POST api/Payment
-       [HttpPost("insert")]
+        [HttpPost("insert")]
         public async Task<ActionResult<Payment>> Post(Payment Payment)
         {
-            _db.payments.Update(Payment);
-            
+            _db.Payments.Update(Payment);
+
             await _db.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetSingle), new { id = Payment.Id }, Payment);
         }
 
         // PUT api/Payment/5
-       [HttpPut("update/{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(long id, Payment Payment)
         {
             if (id != Payment.Id)
@@ -74,12 +74,12 @@ namespace dotnet.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var Payment = await _db.payments.FindAsync(id);
+            var Payment = await _db.Payments.FindAsync(id);
 
             if (Payment == null)
                 return NotFound();
 
-            _db.payments.Remove(Payment);
+            _db.Payments.Remove(Payment);
             await _db.SaveChangesAsync();
             return NoContent();
         }

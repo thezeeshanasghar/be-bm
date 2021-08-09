@@ -13,7 +13,7 @@ namespace dotnet.Controllers
     public class ProcedureController : ControllerBase
     {
 
-          private readonly Context _db;
+        private readonly Context _db;
 
         public ProcedureController(Context context)
         {
@@ -22,44 +22,44 @@ namespace dotnet.Controllers
 
         // GET api/Procedures
         [HttpGet("get")]
-         public async Task<Response<List<Procedure>>> GetAll(string? key)
+        public async Task<Response<List<Procedure>>> GetAll(string key)
         {
-             List<Procedure> procedures;
+            List<Procedure> ProcedureList;
             if (key != "" && key != null)
             {
-                procedures= await _db.procedures.Where(x => x.Name.ToLower().Contains(key) || x.PerformedBy.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                ProcedureList = await _db.Procedures.Where(x => x.Name.ToLower().Contains(key) || x.PerformedBy.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
             }
             else
             {
-                procedures= await _db.procedures.ToListAsync();
+                ProcedureList = await _db.Procedures.ToListAsync();
             }
-            return new Response<List<Procedure>>(true, "Successfully", procedures);
+            return new Response<List<Procedure>>(true, "Successfully", ProcedureList);
         }
 
         // GET api/Procedures/5
         [HttpGet("get/{id}")]
         public async Task<Response<Procedure>> GetSingle(long id)
         {
-            var Procedures = await _db.procedures.FirstOrDefaultAsync(x => x.Id == id);
+            var Procedures = await _db.Procedures.FirstOrDefaultAsync(x => x.Id == id);
             if (Procedures == null)
-               return new Response<Procedure>(false, "Record not found", null);
+                return new Response<Procedure>(false, "Record not found", null);
 
             return new Response<Procedure>(true, "operation succcessful", Procedures);
         }
 
         // POST api/Procedures
-       [HttpPost("insert")]
+        [HttpPost("insert")]
         public async Task<ActionResult<Procedure>> Post(Procedure Procedures)
         {
-            _db.procedures.Update(Procedures);
-            
+            _db.Procedures.Update(Procedures);
+
             await _db.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetSingle), new { id = Procedures.Id }, Procedures);
         }
 
         // PUT api/Procedures/5
-       [HttpPut("update/{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> Put(int id, Procedure Procedures)
         {
             if (id != Procedures.Id)
@@ -74,10 +74,10 @@ namespace dotnet.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var Procedures = await _db.procedures.FindAsync(id);
+            var Procedures = await _db.Procedures.FindAsync(id);
             if (Procedures == null)
                 return NotFound();
-            _db.procedures.Remove(Procedures);
+            _db.Procedures.Remove(Procedures);
             await _db.SaveChangesAsync();
             return NoContent();
         }
