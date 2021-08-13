@@ -1,8 +1,5 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace dotnet.Models
 {
@@ -10,11 +7,13 @@ namespace dotnet.Models
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public virtual User UserObject { get; set; }
+
         public int DutyDuration { get; set; }
         public int SharePercentage { get; set; }
         public double Salary { get; set; }
-        
+
+        public virtual User User { get; set; }
+
     }
     public class Nurses
     {

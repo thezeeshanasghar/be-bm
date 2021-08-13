@@ -3,10 +3,11 @@ using System.Collections.Generic;
 
 namespace dotnet.Models
 {
-    public class DoctorRequest
+    public class PatientRequest
     {
         public int Id { get; set; }
         public int UserId { get; set; }
+
         public string UserType { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string MaritalStatus { get; set; }
@@ -24,10 +25,20 @@ namespace dotnet.Models
         public int FloorNo { get; set; }
         public string Experience { get; set; }
 
-        public int ConsultationFee { get; set; }
-        public int EmergencyConsultationFee { get; set; }
-        public int ShareInFee { get; set; }
-        public string SpecialityType { get; set; }
-        public virtual List<QualificationRequest> QualificationList { get; set; }
+        public string Category { get; set; }
+        public string BirthPlace { get; set; }
+        public string Type { get; set; }
+        public string ExternalId { get; set; }
+        public string BloodGroup { get; set; }
+        public string ClinicSite { get; set; }
+        public string ReferredBy { get; set; }
+        public DateTime ReferredDate { get; set; }
+        public string Guardian { get; set; }
+        public string PaymentProfile { get; set; }
+        public string Description { get; set; }
+
+        public string AppointmentCode { get; set; }
+        public DateTime ConsultationDate { get; set; }
+        public string AppointmentType { get; set; }
     }
 }

@@ -19,71 +19,118 @@ namespace dotnet.Controllers
             _db = context;
         }
 
-        // GET api/Expense
         [HttpGet("get")]
-        public async Task<Response<List<Expense>>> GetAll(string key)
+        public async Task<Response<List<Expense>>> GetItems()
         {
-
-            if (key != "" && key != null)
+            try
             {
-                var expenses = await _db.Expenses.Where(x => x.EmployeeName.ToLower().Contains(key) || x.ExpenseCategory.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
-                return new Response<List<Expense>>(true, "Successfully", expenses);
+                List<Expense> expenseList = await _db.Expenses.ToListAsync();
+                if (expenseList != null && expenseList.Count > 0)
+                {
+                    return new Response<List<Expense>>(true, "Success: Acquired data.", expenseList);
+                }
+                return new Response<List<Expense>>(false, "Failure: Database is empty.", null);
             }
-            else
+            catch (Exception exception)
             {
-                var expenses = await _db.Expenses.ToListAsync();
-                return new Response<List<Expense>>(true, "Successfully", expenses);
+                return new Response<List<Expense>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
-
         }
 
-
-        // GET api/Expense/5
         [HttpGet("get/{id}")]
-        public async Task<Response<Expense>> GetSingle(long id)
+        public async Task<Response<Expense>> GetItemById(long id)
         {
-            var Expense = await _db.Expenses.FirstOrDefaultAsync(x => x.Id == id);
-            if (Expense == null)
-                return new Response<Expense>(false, "Record not found", null);
-
-            return new Response<Expense>(true, "operation succcessful", Expense);
+            try
+            {
+                Expense expense = await _db.Expenses.FirstOrDefaultAsync(x => x.Id == id);
+                if (expense == null)
+                {
+                    return new Response<Expense>(false, "Failure: Data doesn't exist.", null);
+                }
+                return new Response<Expense>(true, "Success: Acquired data.", expense);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Expense>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
+            }
         }
 
-        // POST api/Expense
         [HttpPost("insert")]
-        public async Task<ActionResult<Expense>> Post(Expense Expense)
+        public async Task<Response<Expense>> InsertItem(ExpenseRequest expenseRequest)
         {
-            _db.Expenses.Update(Expense);
+            try
+            {
+                Expense expense = new Expense();
+                expense.BillType = expense.BillType;
+                expense.PaymentType = expenseRequest.PaymentType;
+                expense.EmployeeOrVender = expenseRequest.EmployeeOrVender;
+                expense.VoucherNo = expenseRequest.VoucherNo;
+                expense.ExpenseCategory = expenseRequest.ExpenseCategory;
+                expense.EmployeeName = expenseRequest.EmployeeName;
+                expense.TotalBill = expenseRequest.TotalBill;
+                expense.TransactionDetail = expenseRequest.TransactionDetail;
+                await _db.Expenses.AddAsync(expense);
+                await _db.SaveChangesAsync();
 
-            await _db.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetSingle), new { id = Expense.Id }, Expense);
+                return new Response<Expense>(true, "Success: Inserted data.", expense);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Expense>(false, $"Server Failure: Unable to insert data. Because {exception.Message}", null);
+            }
         }
 
-        // PUT api/Expense/5
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> Put(long id, Expense Expense)
+        public async Task<Response<Expense>> UpdateItem(long id, ExpenseRequest expenseRequest)
         {
-            if (id != Expense.Id)
-                return BadRequest();
-            _db.Entry(Expense).State = EntityState.Modified;
-            await _db.SaveChangesAsync();
+            try
+            {
+                if (id != expenseRequest.Id)
+                {
+                    return new Response<Expense>(false, "Failure: Id sent in body does not match object Id", null);
+                }
+                Expense expense = await _db.Expenses.FirstOrDefaultAsync(x => x.Id == id); ;
+                if (expense == null)
+                {
+                    return new Response<Expense>(false, $"Failure: Unable to update expense. Because Id is invalid. ", null);
+                }
+                expense.BillType = expense.BillType;
+                expense.PaymentType = expenseRequest.PaymentType;
+                expense.EmployeeOrVender = expenseRequest.EmployeeOrVender;
+                expense.VoucherNo = expenseRequest.VoucherNo;
+                expense.ExpenseCategory = expenseRequest.ExpenseCategory;
+                expense.EmployeeName = expenseRequest.EmployeeName;
+                expense.TotalBill = expenseRequest.TotalBill;
+                expense.TransactionDetail = expenseRequest.TransactionDetail;
+                await _db.SaveChangesAsync();
 
-            return NoContent();
+                return new Response<Expense>(true, "Success: Updated data.", expense);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Expense>(false, $"Server Failure: Unable to update data. Because {exception.Message}", null);
+            }
         }
 
-        // DELETE api/Expense/5
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<Response<Expense>> DeleteItemById(long id)
         {
-            var Expense = await _db.Expenses.FindAsync(id);
+            try
+            {
+                Expense expense = await _db.Expenses.FindAsync(id);
+                if (expense == null)
+                {
+                    return new Response<Expense>(false, "Failure: Object doesn't exist.", null);
+                }
+                _db.Expenses.Remove(expense);
+                await _db.SaveChangesAsync();
 
-            if (Expense == null)
-                return NotFound();
-
-            _db.Expenses.Remove(Expense);
-            await _db.SaveChangesAsync();
-            return NoContent();
+                return new Response<Expense>(true, "Success: Deleted data.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Expense>(false, $"Server Failure: Unable to delete data. Because {exception.Message}", null);
+            }
         }
     }
 }

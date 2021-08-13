@@ -21,13 +21,17 @@ namespace dotnet.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("AppointmentCode");
+                    b.Property<string>("Code");
 
-                    b.Property<DateTime>("AppointmentDate");
+                    b.Property<DateTime>("ConsultationDate");
 
-                    b.Property<string>("AppointmentType");
+                    b.Property<DateTime>("Date");
+
+                    b.Property<int>("DoctorId");
 
                     b.Property<int>("PatientId");
+
+                    b.Property<string>("Type");
 
                     b.HasKey("Id");
 
@@ -91,11 +95,11 @@ namespace dotnet.Migrations
 
                     b.Property<int>("AppointmentId");
 
+                    b.Property<double>("CheckupFee");
+
                     b.Property<string>("CheckupType");
 
-                    b.Property<double>("ConsultationFee");
-
-                    b.Property<double>("Discount");
+                    b.Property<DateTime>("Date");
 
                     b.Property<double>("Disposibles");
 
@@ -103,19 +107,9 @@ namespace dotnet.Migrations
 
                     b.Property<double>("GrossAmount");
 
-                    b.Property<int>("IsRefund");
-
-                    b.Property<double>("NetAmount");
+                    b.Property<int>("PatientId");
 
                     b.Property<string>("PaymentType");
-
-                    b.Property<DateTime>("PreviousVisitDate");
-
-                    b.Property<int>("ProcedureId");
-
-                    b.Property<double>("RefundAmount");
-
-                    b.Property<DateTime>("TodayVisitDate");
 
                     b.HasKey("Id");
 
@@ -185,69 +179,35 @@ namespace dotnet.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("BirthPlace");
+
                     b.Property<string>("BloodGroup");
 
-                    b.Property<string>("City");
+                    b.Property<string>("Category");
 
                     b.Property<string>("ClinicSite");
 
-                    b.Property<string>("Cnic");
-
-                    b.Property<string>("Contact");
-
-                    b.Property<DateTime>("Dob");
-
-                    b.Property<string>("Email");
+                    b.Property<string>("Description");
 
                     b.Property<string>("ExternalId");
 
-                    b.Property<string>("FatherHusbandName");
-
-                    b.Property<string>("LocalArea");
-
-                    b.Property<string>("MaritalStatus");
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("PatientCategory");
-
-                    b.Property<string>("PatientDetails");
-
-                    b.Property<string>("PatientGardian");
-
-                    b.Property<string>("PatientType");
+                    b.Property<string>("Guardian");
 
                     b.Property<string>("PaymentProfile");
 
-                    b.Property<string>("PlaceofBirth");
+                    b.Property<string>("ReferredBy");
 
-                    b.Property<string>("ReferedBy");
+                    b.Property<DateTime>("ReferredDate");
 
-                    b.Property<DateTime>("ReferedDate");
+                    b.Property<string>("Type");
 
-                    b.Property<string>("Religion");
-
-                    b.Property<string>("Sex");
-
-                    b.Property<int?>("UserObjectId");
+                    b.Property<int>("UserId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserObjectId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Patients");
-                });
-
-            modelBuilder.Entity("dotnet.Models.Payment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Name");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("dotnet.Models.Procedure", b =>
@@ -257,11 +217,11 @@ namespace dotnet.Migrations
 
                     b.Property<int>("Charges");
 
+                    b.Property<string>("Executant");
+
+                    b.Property<int>("ExecutantShare");
+
                     b.Property<string>("Name");
-
-                    b.Property<string>("PerformedBy");
-
-                    b.Property<int>("PerformerShare");
 
                     b.HasKey("Id");
 
@@ -293,23 +253,21 @@ namespace dotnet.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<double>("Discount");
+
                     b.Property<int>("DoctorId");
 
-                    b.Property<string>("Name");
+                    b.Property<int>("InvoiceId");
 
                     b.Property<long>("PaidAmount");
 
                     b.Property<int>("PatientId");
-
-                    b.Property<int>("PaymentId");
 
                     b.Property<long>("PendingAmount");
 
                     b.Property<string>("Pmid");
 
                     b.Property<int>("ReceiptionistId");
-
-                    b.Property<string>("Sex");
 
                     b.Property<long>("TotalAmount");
 
@@ -319,27 +277,25 @@ namespace dotnet.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.HasIndex("PaymentId");
-
                     b.ToTable("Receipts");
                 });
 
-            modelBuilder.Entity("dotnet.Models.Room", b =>
+            modelBuilder.Entity("dotnet.Models.Receptionist", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("RoomCapacity");
+                    b.Property<string>("JobType");
 
-                    b.Property<double>("RoomCharges");
+                    b.Property<string>("ShiftTime");
 
-                    b.Property<string>("RoomNo");
-
-                    b.Property<string>("RoomType");
+                    b.Property<int>("UserId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Rooms");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Receptionists");
                 });
 
             modelBuilder.Entity("dotnet.Models.Service", b =>
@@ -367,6 +323,8 @@ namespace dotnet.Migrations
 
                     b.Property<string>("Contact");
 
+                    b.Property<DateTime>("DateOfBirth");
+
                     b.Property<string>("Email");
 
                     b.Property<string>("EmergencyContact");
@@ -384,6 +342,10 @@ namespace dotnet.Migrations
                     b.Property<DateTime>("JoiningDate");
 
                     b.Property<string>("LastName");
+
+                    b.Property<string>("MaritalStatus");
+
+                    b.Property<string>("Religion");
 
                     b.Property<string>("UserType");
 
@@ -411,7 +373,7 @@ namespace dotnet.Migrations
             modelBuilder.Entity("dotnet.Models.Invoice", b =>
                 {
                     b.HasOne("dotnet.Models.Appointment", "Appointment")
-                        .WithMany("Invoices")
+                        .WithMany()
                         .HasForeignKey("AppointmentId")
                         .OnDelete(DeleteBehavior.Cascade);
 
@@ -436,7 +398,7 @@ namespace dotnet.Migrations
 
             modelBuilder.Entity("dotnet.Models.Nurse", b =>
                 {
-                    b.HasOne("dotnet.Models.User", "UserObject")
+                    b.HasOne("dotnet.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -444,9 +406,10 @@ namespace dotnet.Migrations
 
             modelBuilder.Entity("dotnet.Models.Patient", b =>
                 {
-                    b.HasOne("dotnet.Models.User", "UserObject")
+                    b.HasOne("dotnet.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserObjectId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("dotnet.Models.Qualification", b =>
@@ -468,10 +431,13 @@ namespace dotnet.Migrations
                         .WithMany()
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
 
-                    b.HasOne("dotnet.Models.Payment", "Payment")
+            modelBuilder.Entity("dotnet.Models.Receptionist", b =>
+                {
+                    b.HasOne("dotnet.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("PaymentId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

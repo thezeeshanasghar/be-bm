@@ -12,7 +12,6 @@ namespace dotnet.Controllers
     [ApiController]
     public class ProcedureController : ControllerBase
     {
-
         private readonly Context _db;
 
         public ProcedureController(Context context)
@@ -20,66 +19,111 @@ namespace dotnet.Controllers
             _db = context;
         }
 
-        // GET api/Procedures
         [HttpGet("get")]
-        public async Task<Response<List<Procedure>>> GetAll(string key)
+        public async Task<Response<List<Procedure>>> GetItems()
         {
-            List<Procedure> ProcedureList;
-            if (key != "" && key != null)
+            try
             {
-                ProcedureList = await _db.Procedures.Where(x => x.Name.ToLower().Contains(key) || x.PerformedBy.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                List<Procedure> procedureList = await _db.Procedures.ToListAsync();
+                if (procedureList != null && procedureList.Count > 0)
+                {
+                    return new Response<List<Procedure>>(true, "Success: Acquired data.", procedureList);
+                }
+                return new Response<List<Procedure>>(false, "Failure: Database is empty.", null);
             }
-            else
+            catch (Exception exception)
             {
-                ProcedureList = await _db.Procedures.ToListAsync();
+                return new Response<List<Procedure>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
-            return new Response<List<Procedure>>(true, "Successfully", ProcedureList);
         }
 
-        // GET api/Procedures/5
         [HttpGet("get/{id}")]
-        public async Task<Response<Procedure>> GetSingle(long id)
+        public async Task<Response<Procedure>> GetItemById(long id)
         {
-            var Procedures = await _db.Procedures.FirstOrDefaultAsync(x => x.Id == id);
-            if (Procedures == null)
-                return new Response<Procedure>(false, "Record not found", null);
+            try
+            {
+                Procedure procedure = await _db.Procedures.FirstOrDefaultAsync(x => x.Id == id);
+                if (procedure == null)
+                {
+                    return new Response<Procedure>(false, "Failure: Data doesn't exist.", null);
 
-            return new Response<Procedure>(true, "operation succcessful", Procedures);
+                }
+                return new Response<Procedure>(true, "Success: Acquired data.", procedure);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Procedure>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
+            }
         }
 
-        // POST api/Procedures
         [HttpPost("insert")]
-        public async Task<ActionResult<Procedure>> Post(Procedure Procedures)
+        public async Task<Response<Procedure>> InsertItem(ProcedureRequest procedureRequest)
         {
-            _db.Procedures.Update(Procedures);
+            try
+            {
+                Procedure procedure = new Procedure();
+                procedure.Name = procedureRequest.Name;
+                procedure.Executant = procedureRequest.Executant;
+                procedure.ExecutantShare = procedureRequest.ExecutantShare;
+                procedure.Charges = procedureRequest.Charges;
+                await _db.Procedures.AddAsync(procedure);
+                await _db.SaveChangesAsync();
 
-            await _db.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetSingle), new { id = Procedures.Id }, Procedures);
+                return new Response<Procedure>(true, "Success: Inserted data.", procedure);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Procedure>(false, $"Server Failure: Unable to insert data. Because {exception.Message}", null);
+            }
         }
 
-        // PUT api/Procedures/5
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> Put(int id, Procedure Procedures)
+        public async Task<Response<Procedure>> UpdateItem(long id, ProcedureRequest procedureRequest)
         {
-            if (id != Procedures.Id)
-                return BadRequest();
-            _db.Entry(Procedures).State = EntityState.Modified;
-            await _db.SaveChangesAsync();
+            try
+            {
+                if (id != procedureRequest.Id)
+                {
+                    return new Response<Procedure>(false, "Failure: Id sent in body does not match object Id", null);
+                }
+                Procedure procedure = await _db.Procedures.FirstOrDefaultAsync(x => x.Id == id);
+                if (procedure == null)
+                {
+                    return new Response<Procedure>(false, "Failure: Data doesn't exist.", null);
+                }
+                procedure.Name = procedureRequest.Name;
+                procedure.Executant = procedureRequest.Executant;
+                procedure.ExecutantShare = procedureRequest.ExecutantShare;
+                procedure.Charges = procedureRequest.Charges;
+                await _db.SaveChangesAsync();
 
-            return NoContent();
+                return new Response<Procedure>(true, "Success: Updated data.", procedure);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Procedure>(false, $"Server Failure: Unable to update data. Because {exception.Message}", null);
+            }
         }
 
-        // DELETE api/Procedures/5
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<Response<Procedure>> DeleteItemById(int id)
         {
-            var Procedures = await _db.Procedures.FindAsync(id);
-            if (Procedures == null)
-                return NotFound();
-            _db.Procedures.Remove(Procedures);
-            await _db.SaveChangesAsync();
-            return NoContent();
+            try
+            {
+                Procedure procedure = await _db.Procedures.FindAsync(id);
+                if (procedure == null)
+                {
+                    return new Response<Procedure>(false, "Failure: Object doesn't exist.", null);
+                }
+                _db.Procedures.Remove(procedure);
+                await _db.SaveChangesAsync();
+
+                return new Response<Procedure>(true, "Success: Deleted data.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Procedure>(false, $"Server Failure: Unable to delete data. Because {exception.Message}", null);
+            }
         }
     }
 }

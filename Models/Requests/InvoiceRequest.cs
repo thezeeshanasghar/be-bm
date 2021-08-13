@@ -1,16 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace dotnet.Models
 {
-    public class Invoice
+    public class InvoiceRequest
     {
         public int Id { get; set; }
         public int AppointmentId { get; set; }
         public int DoctorId { get; set; }
         public int PatientId { get; set; }
+        public int ReceptionistId { get; set; }
 
         public DateTime Date { get; set; }
         public string CheckupType { get; set; }
@@ -19,12 +18,12 @@ namespace dotnet.Models
         public double Disposibles { get; set; }
         public double GrossAmount { get; set; }
 
-        public virtual Appointment Appointment { get; set; }
-        public virtual Doctor Doctor { get; set; }
-    }
-    public class Invoices
-    {
-        public IEnumerable<Invoice> invoices { get; set; }
-        public int Count { get; set; }
+        public string Pmid { get; set; }
+        public double Discount { get; set; }
+        public long TotalAmount { get; set; }
+        public long PendingAmount { get; set; }
+        public long PaidAmount { get; set; }
+
+        public virtual List<InvoiceProcedureRequest> procedureList { get; set; }
     }
 }

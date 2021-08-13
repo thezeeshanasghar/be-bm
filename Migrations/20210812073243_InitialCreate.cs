@@ -43,48 +43,19 @@ namespace dotnet.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payments",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("MySQL:AutoIncrement", true),
-                    Name = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Payments", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Procedures",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySQL:AutoIncrement", true),
                     Name = table.Column<string>(nullable: true),
-                    PerformedBy = table.Column<string>(nullable: true),
+                    Executant = table.Column<string>(nullable: true),
                     Charges = table.Column<int>(nullable: false),
-                    PerformerShare = table.Column<int>(nullable: false)
+                    ExecutantShare = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Procedures", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Rooms",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("MySQL:AutoIncrement", true),
-                    RoomNo = table.Column<string>(nullable: true),
-                    RoomType = table.Column<string>(nullable: true),
-                    RoomCapacity = table.Column<int>(nullable: false),
-                    RoomCharges = table.Column<double>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Rooms", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -108,6 +79,9 @@ namespace dotnet.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySQL:AutoIncrement", true),
                     UserType = table.Column<string>(nullable: true),
+                    DateOfBirth = table.Column<DateTime>(nullable: false),
+                    MaritalStatus = table.Column<string>(nullable: true),
+                    Religion = table.Column<string>(nullable: true),
                     FirstName = table.Column<string>(nullable: true),
                     LastName = table.Column<string>(nullable: true),
                     FatherHusbandName = table.Column<string>(nullable: true),
@@ -177,39 +151,28 @@ namespace dotnet.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySQL:AutoIncrement", true),
-                    UserObjectId = table.Column<int>(nullable: true),
-                    PatientCategory = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(nullable: true),
-                    FatherHusbandName = table.Column<string>(nullable: true),
-                    Dob = table.Column<DateTime>(nullable: false),
-                    Sex = table.Column<string>(nullable: true),
-                    PlaceofBirth = table.Column<string>(nullable: true),
-                    Email = table.Column<string>(nullable: true),
-                    Contact = table.Column<string>(nullable: true),
-                    Cnic = table.Column<string>(nullable: true),
-                    MaritalStatus = table.Column<string>(nullable: true),
-                    PatientType = table.Column<string>(nullable: true),
+                    UserId = table.Column<int>(nullable: false),
+                    Category = table.Column<string>(nullable: true),
+                    BirthPlace = table.Column<string>(nullable: true),
+                    Type = table.Column<string>(nullable: true),
                     ExternalId = table.Column<string>(nullable: true),
                     BloodGroup = table.Column<string>(nullable: true),
                     ClinicSite = table.Column<string>(nullable: true),
-                    ReferedBy = table.Column<string>(nullable: true),
-                    ReferedDate = table.Column<DateTime>(nullable: false),
-                    Religion = table.Column<string>(nullable: true),
-                    PatientGardian = table.Column<string>(nullable: true),
+                    ReferredBy = table.Column<string>(nullable: true),
+                    ReferredDate = table.Column<DateTime>(nullable: false),
+                    Guardian = table.Column<string>(nullable: true),
                     PaymentProfile = table.Column<string>(nullable: true),
-                    City = table.Column<string>(nullable: true),
-                    LocalArea = table.Column<string>(nullable: true),
-                    PatientDetails = table.Column<string>(nullable: true)
+                    Description = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Patients", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Patients_Users_UserObjectId",
-                        column: x => x.UserObjectId,
+                        name: "FK_Patients_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -235,15 +198,38 @@ namespace dotnet.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Receptionists",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("MySQL:AutoIncrement", true),
+                    UserId = table.Column<int>(nullable: false),
+                    JobType = table.Column<string>(nullable: true),
+                    ShiftTime = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Receptionists", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Receptionists_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Appointments",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySQL:AutoIncrement", true),
                     PatientId = table.Column<int>(nullable: false),
-                    AppointmentCode = table.Column<string>(nullable: true),
-                    AppointmentDate = table.Column<DateTime>(nullable: false),
-                    AppointmentType = table.Column<string>(nullable: true)
+                    DoctorId = table.Column<int>(nullable: false),
+                    Code = table.Column<string>(nullable: true),
+                    Date = table.Column<DateTime>(nullable: false),
+                    ConsultationDate = table.Column<DateTime>(nullable: false),
+                    Type = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -262,16 +248,15 @@ namespace dotnet.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySQL:AutoIncrement", true),
-                    Name = table.Column<string>(nullable: true),
-                    Sex = table.Column<string>(nullable: true),
                     PatientId = table.Column<int>(nullable: false),
-                    DoctorId = table.Column<int>(nullable: false),
                     ReceiptionistId = table.Column<int>(nullable: false),
+                    DoctorId = table.Column<int>(nullable: false),
+                    InvoiceId = table.Column<int>(nullable: false),
                     Pmid = table.Column<string>(nullable: true),
+                    Discount = table.Column<double>(nullable: false),
                     TotalAmount = table.Column<long>(nullable: false),
                     PendingAmount = table.Column<long>(nullable: false),
-                    PaidAmount = table.Column<long>(nullable: false),
-                    PaymentId = table.Column<int>(nullable: false)
+                    PaidAmount = table.Column<long>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -288,12 +273,6 @@ namespace dotnet.Migrations
                         principalTable: "Patients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Receipts_Payments_PaymentId",
-                        column: x => x.PaymentId,
-                        principalTable: "Payments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -303,19 +282,14 @@ namespace dotnet.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySQL:AutoIncrement", true),
                     AppointmentId = table.Column<int>(nullable: false),
-                    PreviousVisitDate = table.Column<DateTime>(nullable: false),
-                    TodayVisitDate = table.Column<DateTime>(nullable: false),
                     DoctorId = table.Column<int>(nullable: false),
+                    PatientId = table.Column<int>(nullable: false),
+                    Date = table.Column<DateTime>(nullable: false),
                     CheckupType = table.Column<string>(nullable: true),
+                    CheckupFee = table.Column<double>(nullable: false),
                     PaymentType = table.Column<string>(nullable: true),
-                    ProcedureId = table.Column<int>(nullable: false),
-                    ConsultationFee = table.Column<double>(nullable: false),
-                    Discount = table.Column<double>(nullable: false),
-                    NetAmount = table.Column<double>(nullable: false),
                     Disposibles = table.Column<double>(nullable: false),
-                    GrossAmount = table.Column<double>(nullable: false),
-                    IsRefund = table.Column<int>(nullable: false),
-                    RefundAmount = table.Column<double>(nullable: false)
+                    GrossAmount = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -396,9 +370,9 @@ namespace dotnet.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Patients_UserObjectId",
+                name: "IX_Patients_UserId",
                 table: "Patients",
-                column: "UserObjectId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Qualifications_UserId",
@@ -416,9 +390,9 @@ namespace dotnet.Migrations
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Receipts_PaymentId",
-                table: "Receipts",
-                column: "PaymentId");
+                name: "IX_Receptionists_UserId",
+                table: "Receptionists",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -442,7 +416,7 @@ namespace dotnet.Migrations
                 name: "Receipts");
 
             migrationBuilder.DropTable(
-                name: "Rooms");
+                name: "Receptionists");
 
             migrationBuilder.DropTable(
                 name: "Services");
@@ -452,9 +426,6 @@ namespace dotnet.Migrations
 
             migrationBuilder.DropTable(
                 name: "Procedures");
-
-            migrationBuilder.DropTable(
-                name: "Payments");
 
             migrationBuilder.DropTable(
                 name: "Appointments");

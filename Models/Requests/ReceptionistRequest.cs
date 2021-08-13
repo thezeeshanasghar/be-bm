@@ -1,17 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace dotnet.Models
 {
-    public class User
+    public class ReceptionistRequest
     {
         public int Id { get; set; }
+        public int UserId { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public string MaritalStatus { get; set; }
+        public string Religion { get; set; }
         public string UserType { get; set; }
-        public DateTime DateOfBirth { get; set; }   // move to controller
-        public string MaritalStatus { get; set; }   // move to controller
-        public string Religion { get; set; }        // move to controller
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string FatherHusbandName { get; set; }
@@ -24,13 +23,8 @@ namespace dotnet.Models
         public DateTime JoiningDate { get; set; }
         public int FloorNo { get; set; }
         public string Experience { get; set; }
-        
-        public virtual List<Qualification> Qualifications { get; set; }
-
-    }
-    public class Users
-    {
-        public IEnumerable<User> UserList { get; set; }
-        public int Count { get; set; }
+        public string JobType { get; set; }
+        public string ShiftTime { get; set; }
+        public virtual List<QualificationRequest> QualificationList { get; set; }
     }
 }

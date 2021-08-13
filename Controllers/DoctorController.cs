@@ -29,10 +29,8 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Doctor>>(true, "Success: Acquired data.", doctorList);
                 }
-                else
-                {
-                    return new Response<List<Doctor>>(false, "Failure: Data does not exist.", null);
-                }
+                return new Response<List<Doctor>>(false, "Failure: Database is empty.", null);
+
             }
             catch (Exception exception)
             {
@@ -45,25 +43,24 @@ namespace dotnet.Controllers
         {
             try
             {
-                Doctor doctorObject = await _db.Doctors.FirstOrDefaultAsync(x => x.Id == id);
-                if (doctorObject != null)
+                Doctor doctor = await _db.Doctors.FirstOrDefaultAsync(x => x.Id == id);
+                if (doctor == null)
                 {
-                    return new Response<Doctor>(true, "Success: Acquired data.", doctorObject);
+                    return new Response<Doctor>(false, "Failure: Data doesn't exist.", null);
                 }
-                else
-                {
-                    return new Response<Doctor>(false, "Failure: Data doesnot exist.", null);
-                }
+                return new Response<Doctor>(true, "Success: Acquired data.", doctor);
+
             }
             catch (Exception exception)
             {
-                return new Response<Doctor>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+                return new Response<Doctor>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
         }
 
         [HttpPost("insert")]
         public async Task<Response<Doctor>> InsertItem(DoctorRequest doctorRequest)
         {
+            using var transaction = _db.Database.BeginTransaction();
             try
             {
                 User user = new User();
@@ -80,6 +77,9 @@ namespace dotnet.Controllers
                 user.JoiningDate = doctorRequest.JoiningDate;
                 user.FloorNo = doctorRequest.FloorNo;
                 user.Experience = doctorRequest.Experience;
+                user.DateOfBirth = doctorRequest.DateOfBirth;
+                user.MaritalStatus = doctorRequest.MaritalStatus;
+                user.Religion = doctorRequest.Religion;
                 await _db.Users.AddAsync(user);
                 await _db.SaveChangesAsync();
 
@@ -103,11 +103,13 @@ namespace dotnet.Controllers
                 await _db.Doctors.AddAsync(doctor);
                 await _db.SaveChangesAsync();
 
-                return new Response<Doctor>(true, "Success: Created object.", doctor);
+                transaction.Commit();
+                return new Response<Doctor>(true, "Success: Inserted data.", doctor);
             }
             catch (Exception exception)
             {
-                return new Response<Doctor>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+                transaction.Rollback();
+                return new Response<Doctor>(false, $"Server Failure: Unable to insert data. Because {exception.Message}", null);
             }
         }
 
@@ -124,7 +126,7 @@ namespace dotnet.Controllers
                 User user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
                 if (user == null)
                 {
-                    return new Response<Doctor>(false, "Failure: Data doesnot exist.", null);
+                    return new Response<Doctor>(false, "Failure: Data doesn't exist.", null);
                 }
                 user.UserType = doctorRequest.UserType;
                 user.FirstName = doctorRequest.FirstName;
@@ -139,6 +141,9 @@ namespace dotnet.Controllers
                 user.JoiningDate = doctorRequest.JoiningDate;
                 user.FloorNo = doctorRequest.FloorNo;
                 user.Experience = doctorRequest.Experience;
+                user.DateOfBirth = doctorRequest.DateOfBirth;
+                user.MaritalStatus = doctorRequest.MaritalStatus;
+                user.Religion = doctorRequest.Religion;
                 await _db.SaveChangesAsync();
 
                 foreach (QualificationRequest drQualification in doctorRequest.QualificationList)
@@ -165,36 +170,35 @@ namespace dotnet.Controllers
                 doctor.EmergencyConsultationFee = doctorRequest.EmergencyConsultationFee;
                 doctor.ShareInFee = doctorRequest.ShareInFee;
                 doctor.SpecialityType = doctorRequest.SpecialityType;
-
                 await _db.SaveChangesAsync();
+
                 transaction.Commit();
-                
-                return new Response<Doctor>(true, "Success: Updated object.", doctor);
+                return new Response<Doctor>(true, "Success: Updated data.", doctor);
             }
             catch (Exception exception)
             {
                 transaction.Rollback();
-                return new Response<Doctor>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+                return new Response<Doctor>(false, $"Server Failure: Unable to update data. Because {exception.Message}", null);
             }
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<Response<Doctor>> DeleteItemById(int id)
+        public async Task<Response<Doctor>> DeleteItemById(long id)
         {
             try
             {
                 User user = await _db.Users.FindAsync(id);
                 if (user == null)
                 {
-                    return new Response<Doctor>(false, "Failure: Object doesnot exist.", null);
+                    return new Response<Doctor>(false, "Failure: Object doesn't exist.", null);
                 }
                 _db.Users.Remove(user);
                 await _db.SaveChangesAsync();
-                return new Response<Doctor>(true, "Success: Object deleted.", null);
+                return new Response<Doctor>(true, "Success: Deleted data.", null);
             }
             catch (Exception exception)
             {
-                return new Response<Doctor>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+                return new Response<Doctor>(false, $"Server Failure: Unable to delete data. Because {exception.Message}", null);
             }
         }
     }

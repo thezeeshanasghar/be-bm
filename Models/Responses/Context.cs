@@ -12,12 +12,11 @@ namespace dotnet.Models
 
         }
         public DbSet<Doctor> Doctors { get; set; }
+        public DbSet<Receptionist> Receptionists { get; set; }
         public DbSet<Nurse> Nurses { get; set; }
         public DbSet<Procedure> Procedures { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Receipt> Receipts { get; set; }
-        public DbSet<Room> Rooms { get; set; }
-        public DbSet<Payment> Payments { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<Expense> Expenses { get; set; }

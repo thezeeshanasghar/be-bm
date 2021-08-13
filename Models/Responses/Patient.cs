@@ -1,61 +1,31 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace dotnet.Models
 {
     public class Patient
     {
         public int Id { get; set; }
-        public virtual User UserObject { get; set; }
-        public string PatientCategory { get; set; }
-        public string Name { get; set; }
-        public string FatherHusbandName { get; set; }
-        public DateTime Dob { get; set; }
-        public string Sex { get; set; }
-        public string PlaceofBirth { get; set; }
-        public string Email { get; set; }
-        public string Contact { get; set; }
-        public string Cnic { get; set; }
-        public string MaritalStatus { get; set; }
-        public string PatientType { get; set; }
+        public int UserId { get; set; }
+
+        public string Category { get; set; }
+        public string BirthPlace { get; set; }
+        public string Type { get; set; }
         public string ExternalId { get; set; }
         public string BloodGroup { get; set; }
         public string ClinicSite { get; set; }
-        public string ReferedBy { get; set; }
-        public DateTime ReferedDate { get; set; }
-        public string Religion { get; set; }
-        public string PatientGardian { get; set; }
+        public string ReferredBy { get; set; }
+        public DateTime ReferredDate { get; set; }
+        public string Guardian { get; set; }
         public string PaymentProfile { get; set; }
-        public string City { get; set; }
-        public string LocalArea { get; set; }
-        public string PatientDetails { get; set; }
-        public virtual ICollection<Appointment> Appointments { get; set; }
+        public string Description { get; set; }
+        
+        public virtual List<Appointment> Appointments { get; set; }
+        public virtual User User { get; set; }
     }
     public class Patients
     {
         public IEnumerable<Patient> PatientsList { get; set; }
         public int Count { get; set; }
     }
-    public class PatientwithAppointment
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public DateTime Dob { get; set; }
-        public string Email { get; set; }
-        public string Contact { get; set; }
-        public string City { get; set; }
-        public string Area { get; set; }
-        public int PatientId { get; set; }
-        public string FatherHusbandName { get; set; }
-        public string Sex { get; set; }
-        public double Discount { get; set; }
-        public double NetAmount { get; set; }
-        public string Category { get; set; }
-        public int AppointmentId { get; set; }
-        public DateTime LastAppointmentDate { get; set; }
-    }
-
 }

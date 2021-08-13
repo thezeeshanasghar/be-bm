@@ -75,6 +75,7 @@ namespace dotnet
             {
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "myApi", Version = "v1" });
             });
+
             services.AddCors();
             services.AddSignalR();
 
@@ -84,7 +85,7 @@ namespace dotnet
                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
                 );
 
-            //  services.AddCors(options => options.AddPolicy("CorsPolicy", builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials().Build()));
+            // services.AddCors(options => options.AddPolicy("CorsPolicy", builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials().Build()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

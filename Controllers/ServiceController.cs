@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
 using Microsoft.EntityFrameworkCore;
+
 namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ServiceController : ControllerBase
     {
-
         private readonly Context _db;
 
         public ServiceController(Context context)
@@ -19,70 +19,106 @@ namespace dotnet.Controllers
             _db = context;
         }
 
-        // GET api/Service
         [HttpGet("get")]
-        public async Task<Response<List<Service>>> GetAll(string key)
+        public async Task<Response<List<Service>>> GetItems()
         {
-            List<Service> ServiceList;
-            if (key != "" && key != null)
+            try
             {
-                ServiceList = await _db.Services.Where(x => x.Name.ToLower().Contains(key) || x.Description.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                List<Service> serviceList = await _db.Services.ToListAsync();
+                if (serviceList != null && serviceList.Count > 0)
+                {
+                    return new Response<List<Service>>(true, "Success: Acquired data.", serviceList);
+                }
+                return new Response<List<Service>>(false, "Failure: Database is empty.", null);
             }
-            else
+            catch (Exception exception)
             {
-                ServiceList = await _db.Services.ToListAsync();
+                return new Response<List<Service>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
-            return new Response<List<Service>>(true, "Successfully", ServiceList);
         }
 
-        // GET api/Service/5
         [HttpGet("get/{id}")]
-        public async Task<Response<Service>> GetSingle(long id)
+        public async Task<Response<Service>> GetItemById(long id)
         {
-            var Service = await _db.Services.FirstOrDefaultAsync(x => x.Id == id);
-            if (Service == null)
+            try
             {
-                return new Response<Service>(false, "Record not found", null);
+                Service service = await _db.Services.FirstOrDefaultAsync(x => x.Id == id);
+                if (service == null)
+                {
+                    return new Response<Service>(false, "Failure: Data doesn't exist.", null);
+                }
+                return new Response<Service>(true, "Success: Acquired data.", service);
             }
-
-            return new Response<Service>(true, "operation succcessful", Service);
+            catch (Exception exception)
+            {
+                return new Response<Service>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
+            }
         }
 
-        // POST api/Service
         [HttpPost("insert")]
-        public async Task<ActionResult<Service>> Post(Service Service)
+        public async Task<Response<Service>> InsertItem(ServiceRequest serviceRequest)
         {
-            _db.Services.Update(Service);
+            try
+            {
+                Service service = new Service();
+                service.Name = serviceRequest.Name;
+                service.Description = serviceRequest.Description;
+                await _db.Services.AddAsync(service);
+                await _db.SaveChangesAsync();
 
-            await _db.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetSingle), new { id = Service.Id }, Service);
+                return new Response<Service>(true, "Success: Inserted data.", service);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Service>(false, $"Server Failure: Unable to insert data. Because {exception.Message}", null);
+            }
         }
 
-        // PUT api/Service/5
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> Put(long id, Service Service)
+        public async Task<Response<Service>> UpdateItem(long id, ServiceRequest serviceRequest)
         {
-            if (id != Service.Id)
-                return BadRequest();
-            _db.Entry(Service).State = EntityState.Modified;
-            await _db.SaveChangesAsync();
+            try
+            {
+                if (id != serviceRequest.Id)
+                {
+                    return new Response<Service>(false, "Failure: Id sent in body does not match object Id", null);
+                }
+                Service service = await _db.Services.FirstOrDefaultAsync(x => x.Id == id);
+                if (service == null)
+                {
+                    return new Response<Service>(false, "Failure: Data doesn't exist.", null);
+                }
+                service.Name = serviceRequest.Name;
+                service.Description = serviceRequest.Description;
+                await _db.SaveChangesAsync();
 
-            return NoContent();
+                return new Response<Service>(true, "Success: Updated data.", service);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Service>(false, $"Server Failure: Unable to update data. Because {exception.Message}", null);
+            }
         }
 
-        // DELETE api/Service/5
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<Response<Service>> DeleteItemById(long id)
         {
-            var Service = await _db.Services.FindAsync(id);
+            try
+            {
+                Service service = await _db.Services.FindAsync(id);
+                if (service == null)
+                {
+                    return new Response<Service>(false, "Failure: Object doesn't exist.", null);
+                }
+                _db.Services.Remove(service);
+                await _db.SaveChangesAsync();
 
-            if (Service == null)
-                return NotFound();
-
-            _db.Services.Remove(Service);
-            await _db.SaveChangesAsync();
-            return NoContent();
+                return new Response<Service>(true, "Success: Deleted data.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Service>(false, $"Server Failure: Unable to delete data. Because {exception.Message}", null);
+            }
         }
     }
 }

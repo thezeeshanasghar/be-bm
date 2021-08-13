@@ -12,7 +12,6 @@ namespace dotnet.Controllers
     [ApiController]
     public class InvoiceController : ControllerBase
     {
-
         private readonly Context _db;
 
         public InvoiceController(Context context)
@@ -20,68 +19,117 @@ namespace dotnet.Controllers
             _db = context;
         }
 
-        // GET api/Invoice
         [HttpGet("get")]
-        public async Task<Response<List<Invoice>>> GetAll(string key)
+        public async Task<Response<List<Invoice>>> GetItems()
         {
-            List<Invoice> InvoiceList;
-            if (key != "" && key != null)
+            try
             {
-                InvoiceList = await _db.Invoices.Where(x => x.Appointment.Patient.Name.ToLower().Contains(key) || x.Appointment.Patient.Email.ToLower().Contains(key) || x.Appointment.Patient.Contact.ToLower().Contains(key) || x.Appointment.Patient.City.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+                List<Invoice> invoiceList = await _db.Invoices.ToListAsync();
+                if (invoiceList != null && invoiceList.Count > 0)
+                {
+                    return new Response<List<Invoice>>(true, "Success: Acquired data.", invoiceList);
+                }
+                else
+                {
+                    return new Response<List<Invoice>>(false, "Failure: Data does not exist.", null);
+                }
             }
-            else
+            catch (Exception exception)
             {
-                InvoiceList = await _db.Invoices.ToListAsync();
+                return new Response<List<Invoice>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
-            return new Response<List<Invoice>>(true, "Successfully", InvoiceList);
-
         }
 
-        // GET api/Invoice/5
         [HttpGet("get/{id}")]
-        public async Task<Response<Invoice>> GetSingle(long id)
+        public async Task<Response<Invoice>> GetItemById(long id)
         {
-            var Invoice = await _db.Invoices.FirstOrDefaultAsync(x => x.Id == id);
-            if (Invoice == null)
-                return new Response<Invoice>(false, "Record not found", null);
-            return new Response<Invoice>(true, "operation succcessful", Invoice);
+            try
+            {
+                Invoice invoice = await _db.Invoices.FirstOrDefaultAsync(x => x.Id == id);
+                if (invoice != null)
+                {
+                    return new Response<Invoice>(true, "Success: Acquired data.", invoice);
+                }
+                else
+                {
+                    return new Response<Invoice>(false, "Failure: Data doesnot exist.", null);
+                }
+            }
+            catch (Exception exception)
+            {
+                return new Response<Invoice>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
+            }
         }
 
-        // POST api/Invoice
         [HttpPost("insert")]
-        public async Task<ActionResult<Invoice>> Post(Invoice Invoice)
+        public async Task<Response<Invoice>> InsertItem(InvoiceRequest invoiceRequest)
         {
-            _db.Invoices.Update(Invoice);
+            using var transaction = _db.Database.BeginTransaction();
+            try
+            {
+                Invoice invoice = new Invoice();
+                invoice.AppointmentId = invoiceRequest.AppointmentId;
+                invoice.DoctorId = invoiceRequest.DoctorId;
+                invoice.PatientId = invoiceRequest.PatientId;
+                invoice.Date = invoiceRequest.Date;
+                invoice.CheckupType = invoiceRequest.CheckupType;
+                invoice.CheckupFee = invoiceRequest.CheckupFee;
+                invoice.PaymentType = invoiceRequest.PaymentType;
+                invoice.Disposibles = invoiceRequest.Disposibles;
+                invoice.Disposibles = invoiceRequest.GrossAmount;
+                await _db.Invoices.AddAsync(invoice);
+                await _db.SaveChangesAsync();
 
-            await _db.SaveChangesAsync();
+                foreach (InvoiceProcedureRequest irProcedure in invoiceRequest.procedureList)
+                {
+                    InvoiceProcedures invoiceProcedures = new InvoiceProcedures();
+                    invoiceProcedures.ProcedureId = irProcedure.InvoiceId;
+                    invoiceProcedures.InvoiceId = invoice.Id;
+                    await _db.InvoiceProcedures.AddAsync(invoiceProcedures);
+                    await _db.SaveChangesAsync();
+                }
 
-            return CreatedAtAction(nameof(GetSingle), new { id = Invoice.Id }, Invoice);
+                Receipt receipt = new Receipt();
+                receipt.PatientId = invoiceRequest.PatientId;
+                receipt.ReceiptionistId = invoiceRequest.ReceptionistId;
+                receipt.DoctorId = invoiceRequest.DoctorId;
+                receipt.Pmid = invoiceRequest.Pmid;
+                receipt.Discount = invoiceRequest.Discount;
+                receipt.TotalAmount = invoiceRequest.TotalAmount;
+                receipt.PendingAmount = invoiceRequest.PendingAmount;
+                receipt.PaidAmount = invoiceRequest.PaidAmount;
+                await _db.Receipts.AddAsync(receipt);
+                await _db.SaveChangesAsync();
+
+                transaction.Commit();
+                return new Response<Invoice>(true, "Success: Created object.", invoice);
+            }
+            catch (Exception exception)
+            {
+                transaction.Rollback();
+                return new Response<Invoice>(false, $"Server Failure: Unable to insert object. Because {exception.Message}", null);
+            }
         }
 
-        // PUT api/Invoice/5
-        [HttpPut("update/{id}")]
-        public async Task<IActionResult> Put(long id, Invoice Invoice)
-        {
-            if (id != Invoice.Id)
-                return BadRequest();
-            _db.Entry(Invoice).State = EntityState.Modified;
-            await _db.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        // DELETE api/Invoice/5
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<Response<Invoice>> DeleteItemById(long id)
         {
-            var Invoice = await _db.Invoices.FindAsync(id);
-
-            if (Invoice == null)
-                return NotFound();
-
-            _db.Invoices.Remove(Invoice);
-            await _db.SaveChangesAsync();
-            return NoContent();
+            try
+            {
+                User user = await _db.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return new Response<Invoice>(false, "Failure: Object doesnot exist.", null);
+                }
+                _db.Users.Remove(user);
+                await _db.SaveChangesAsync();
+                return new Response<Invoice>(true, "Success: Object deleted.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<Invoice>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+            }
         }
+
     }
 }

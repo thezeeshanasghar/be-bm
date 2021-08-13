@@ -31,10 +31,7 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Login>>(true, "Success: Acquired data.", loginList);
                 }
-                else
-                {
-                    return new Response<List<Login>>(false, "Failure: Data does not exist.", null);
-                }
+                return new Response<List<Login>>(false, "Failure: Data does not exist.", null);
             }
             catch (Exception exception)
             {
@@ -48,14 +45,11 @@ namespace dotnet.Controllers
             try
             {
                 Login loginObject = await _db.Login.FirstOrDefaultAsync(x => x.Id == id);
-                if (loginObject != null)
-                {
-                    return new Response<Login>(true, "Success: Acquired data.", loginObject);
-                }
-                else
+                if (loginObject == null)
                 {
                     return new Response<Login>(false, "Failure: Data doesnot exist.", null);
                 }
+                return new Response<Login>(true, "Success: Acquired data.", loginObject);
             }
             catch (Exception exception)
             {
@@ -75,6 +69,7 @@ namespace dotnet.Controllers
                 }
                 await _db.Login.AddAsync(loginObject);
                 await _db.SaveChangesAsync();
+
                 return new Response<Login>(true, "Success: Created object.", loginObject);
             }
             catch (Exception exception)
@@ -99,6 +94,7 @@ namespace dotnet.Controllers
                 }
                 existingItem = loginObject;
                 await _db.SaveChangesAsync();
+
                 return new Response<Login>(true, "Success: Updated object.", loginObject);
             }
             catch (Exception exception)
@@ -119,6 +115,7 @@ namespace dotnet.Controllers
                 }
                 _db.Login.Remove(loginObject);
                 await _db.SaveChangesAsync();
+
                 return new Response<Login>(true, "Success: Object deleted.", null);
             }
             catch (Exception exception)

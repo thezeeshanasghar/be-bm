@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-
 namespace dotnet.Models
 {
-    public class Expense
+    public class ExpenseRequest
     {
         public int Id { get; set; }
-        
         public string BillType { get; set; }
         public string PaymentType { get; set; }
         public string EmployeeOrVender { get; set; }
@@ -14,10 +11,5 @@ namespace dotnet.Models
         public string EmployeeName { get; set; }
         public double TotalBill { get; set; }
         public string TransactionDetail { get; set; }
-    }
-    public class Expenses
-    {
-        public IEnumerable<Expense> expenses { get; set; }
-        public int Count { get; set; }
     }
 }

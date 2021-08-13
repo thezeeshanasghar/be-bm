@@ -21,67 +21,67 @@ namespace dotnet.Controllers
         }
 
         // GET api/Appointment
-        [HttpGet("get")]
-        public async Task<Response<List<Appointment>>> GetAll(string key)
-        {
-            List<Appointment> appointments;
-            if (key != "" && key != null)
-            {
-                appointments = await _db.Appointments.Where(x => x.Patient.Name.ToLower().Contains(key) || x.Patient.Sex.ToLower().Contains(key) || x.Patient.Email.ToLower().Contains(key) || x.Patient.City.ToLower().Contains(key) || x.Patient.LocalArea.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
-            }
-            else
-            {
-                appointments = await _db.Appointments.ToListAsync();
-            }
-            return new Response<List<Appointment>>(true, "Successfully", appointments);
+        // [HttpGet("get")]
+        // public async Task<Response<List<Appointment>>> GetAll(string key)
+        // {
+        //     List<Appointment> appointments;
+        //     if (key != "" && key != null)
+        //     {
+        //         appointments = await _db.Appointments.Where(x => x.Patient.Name.ToLower().Contains(key) || x.Patient.Sex.ToLower().Contains(key) || x.Patient.Email.ToLower().Contains(key) || x.Patient.City.ToLower().Contains(key) || x.Patient.LocalArea.ToLower().Contains(key) || x.Id.ToString().Contains(key)).ToListAsync();
+        //     }
+        //     else
+        //     {
+        //         appointments = await _db.Appointments.ToListAsync();
+        //     }
+        //     return new Response<List<Appointment>>(true, "Successfully", appointments);
 
-        }
+        // }
 
-        // GET api/Appointment/5
-        [HttpGet("get/{id}")]
-        public async Task<Response<Appointment>> GetSingle(long id)
-        {
-            var Appointment = await _db.Appointments.FirstOrDefaultAsync(x => x.Id == id);
-            if (Appointment == null)
-                return new Response<Appointment>(false, "Record not found", null);
-            return new Response<Appointment>(true, "operation succcessful", Appointment);
-        }
+        // // GET api/Appointment/5
+        // [HttpGet("get/{id}")]
+        // public async Task<Response<Appointment>> GetSingle(long id)
+        // {
+        //     var Appointment = await _db.Appointments.FirstOrDefaultAsync(x => x.Id == id);
+        //     if (Appointment == null)
+        //         return new Response<Appointment>(false, "Record not found", null);
+        //     return new Response<Appointment>(true, "operation succcessful", Appointment);
+        // }
 
-        // POST api/Appointment
-        [HttpPost("insert")]
-        public async Task<ActionResult<Appointment>> Post(Appointment Appointment)
-        {
-            _db.Appointments.Update(Appointment);
+        // // POST api/Appointment
+        // [HttpPost("insert")]
+        // public async Task<ActionResult<Appointment>> Post(Appointment Appointment)
+        // {
+        //     _db.Appointments.Update(Appointment);
 
-            await _db.SaveChangesAsync();
+        //     await _db.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetSingle), new { id = Appointment.Id }, Appointment);
-        }
+        //     return CreatedAtAction(nameof(GetSingle), new { id = Appointment.Id }, Appointment);
+        // }
 
-        // PUT api/Appointment/5
-        [HttpPut("update/{id}")]
-        public async Task<IActionResult> Put(long id, Appointment Appointment)
-        {
-            if (id != Appointment.Id)
-                return BadRequest();
-            _db.Entry(Appointment).State = EntityState.Modified;
-            await _db.SaveChangesAsync();
+        // // PUT api/Appointment/5
+        // [HttpPut("update/{id}")]
+        // public async Task<IActionResult> Put(long id, Appointment Appointment)
+        // {
+        //     if (id != Appointment.Id)
+        //         return BadRequest();
+        //     _db.Entry(Appointment).State = EntityState.Modified;
+        //     await _db.SaveChangesAsync();
 
-            return NoContent();
-        }
+        //     return NoContent();
+        // }
 
-        // DELETE api/Appointment/5
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var Appointment = await _db.Appointments.FindAsync(id);
+        // // DELETE api/Appointment/5
+        // [HttpDelete("delete/{id}")]
+        // public async Task<IActionResult> Delete(int id)
+        // {
+        //     var Appointment = await _db.Appointments.FindAsync(id);
 
-            if (Appointment == null)
-                return NotFound();
+        //     if (Appointment == null)
+        //         return NotFound();
 
-            _db.Appointments.Remove(Appointment);
-            await _db.SaveChangesAsync();
-            return NoContent();
-        }
+        //     _db.Appointments.Remove(Appointment);
+        //     await _db.SaveChangesAsync();
+        //     return NoContent();
+        // }
     }
 }
