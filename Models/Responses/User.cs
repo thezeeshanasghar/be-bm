@@ -8,10 +8,11 @@ namespace dotnet.Models
     public class User
     {
         public int Id { get; set; }
+
         public string UserType { get; set; }
-        public DateTime DateOfBirth { get; set; }   // move to controller
-        public string MaritalStatus { get; set; }   // move to controller
-        public string Religion { get; set; }        // move to controller
+        public DateTime DateOfBirth { get; set; }
+        public string MaritalStatus { get; set; }
+        public string Religion { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string FatherHusbandName { get; set; }
@@ -24,7 +25,7 @@ namespace dotnet.Models
         public DateTime JoiningDate { get; set; }
         public int FloorNo { get; set; }
         public string Experience { get; set; }
-        
+
         public virtual List<Qualification> Qualifications { get; set; }
 
     }

@@ -28,6 +28,7 @@ namespace dotnet.Models
         public int EmergencyConsultationFee { get; set; }
         public int ShareInFee { get; set; }
         public string SpecialityType { get; set; }
+        
         public virtual List<QualificationRequest> QualificationList { get; set; }
     }
 }

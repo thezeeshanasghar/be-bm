@@ -7,6 +7,7 @@ namespace dotnet.Models
     {
         public int Id { get; set; }
         public int UserId { get; set; }
+
         public DateTime DateOfBirth { get; set; }
         public string MaritalStatus { get; set; }
         public string Religion { get; set; }
@@ -25,6 +26,7 @@ namespace dotnet.Models
         public string Experience { get; set; }
         public string JobType { get; set; }
         public string ShiftTime { get; set; }
+        
         public virtual List<QualificationRequest> QualificationList { get; set; }
     }
 }
