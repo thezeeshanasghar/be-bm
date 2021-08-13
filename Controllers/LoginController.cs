@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace dotnet.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class LoginController : ControllerBase
