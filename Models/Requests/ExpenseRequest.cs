@@ -3,6 +3,7 @@ namespace dotnet.Models
     public class ExpenseRequest
     {
         public int Id { get; set; }
+        
         public string BillType { get; set; }
         public string PaymentType { get; set; }
         public string EmployeeOrVender { get; set; }

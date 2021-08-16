@@ -27,7 +27,6 @@ namespace dotnet.Models
         public string Experience { get; set; }
 
         public virtual List<Qualification> Qualifications { get; set; }
-
     }
     public class Users
     {

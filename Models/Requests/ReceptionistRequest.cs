@@ -24,6 +24,7 @@ namespace dotnet.Models
         public DateTime JoiningDate { get; set; }
         public int FloorNo { get; set; }
         public string Experience { get; set; }
+        
         public string JobType { get; set; }
         public string ShiftTime { get; set; }
         
