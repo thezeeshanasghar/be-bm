@@ -19,6 +19,5 @@ namespace dotnet.Models
         public IEnumerable<Appointment> appointments { get; set; }
         public int Count { get; set; }
     }
-
 }
 

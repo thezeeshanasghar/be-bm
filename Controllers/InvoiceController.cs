@@ -29,10 +29,7 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Invoice>>(true, "Success: Acquired data.", invoiceList);
                 }
-                else
-                {
-                    return new Response<List<Invoice>>(false, "Failure: Data does not exist.", null);
-                }
+                return new Response<List<Invoice>>(false, "Failure: Data does not exist.", null);
             }
             catch (Exception exception)
             {
@@ -50,10 +47,7 @@ namespace dotnet.Controllers
                 {
                     return new Response<Invoice>(true, "Success: Acquired data.", invoice);
                 }
-                else
-                {
-                    return new Response<Invoice>(false, "Failure: Data doesnot exist.", null);
-                }
+                return new Response<Invoice>(false, "Failure: Data doesnot exist.", null);
             }
             catch (Exception exception)
             {
@@ -65,10 +59,25 @@ namespace dotnet.Controllers
         public async Task<Response<Invoice>> InsertItem(InvoiceRequest invoiceRequest)
         {
             using var transaction = _db.Database.BeginTransaction();
+            int appointmentId = invoiceRequest.AppointmentId;
             try
             {
+                Appointment appointment = await _db.Appointments.FirstOrDefaultAsync(x => x.Id == appointmentId);
+                if (appointment == null || appointment.Date < DateTime.UtcNow.Date)
+                {
+                    Appointment newAppointment = new Appointment();
+                    newAppointment.PatientId = invoiceRequest.PatientId;
+                    newAppointment.DoctorId = invoiceRequest.DoctorId;
+                    newAppointment.Date = DateTime.UtcNow.Date;
+                    newAppointment.ConsultationDate = DateTime.UtcNow;
+                    newAppointment.Type = "Walk In";
+                    await _db.Appointments.AddAsync(newAppointment);
+                    await _db.SaveChangesAsync();
+                    appointmentId = newAppointment.Id;
+                }
+
                 Invoice invoice = new Invoice();
-                invoice.AppointmentId = invoiceRequest.AppointmentId;
+                invoice.AppointmentId = appointmentId;
                 invoice.DoctorId = invoiceRequest.DoctorId;
                 invoice.PatientId = invoiceRequest.PatientId;
                 invoice.Date = invoiceRequest.Date;

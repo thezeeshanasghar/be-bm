@@ -29,10 +29,7 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Patient>>(true, "Success: Acquired data.", patientList);
                 }
-                else
-                {
-                    return new Response<List<Patient>>(false, "Failure: Data does not exist.", null);
-                }
+                return new Response<List<Patient>>(false, "Failure: Data does not exist.", null);
             }
             catch (Exception exception)
             {
@@ -50,10 +47,7 @@ namespace dotnet.Controllers
                 {
                     return new Response<Patient>(true, "Success: Acquired data.", patient);
                 }
-                else
-                {
-                    return new Response<Patient>(false, "Failure: Data doesnot exist.", null);
-                }
+                return new Response<Patient>(false, "Failure: Data doesnot exist.", null);
             }
             catch (Exception exception)
             {

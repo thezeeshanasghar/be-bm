@@ -9,7 +9,7 @@ using dotnet.Models;
 namespace dotnet.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20210812073243_InitialCreate")]
+    [Migration("20210816051059_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -358,7 +358,7 @@ namespace dotnet.Migrations
 
             modelBuilder.Entity("dotnet.Models.Appointment", b =>
                 {
-                    b.HasOne("dotnet.Models.Patient", "Patient")
+                    b.HasOne("dotnet.Models.Patient")
                         .WithMany("Appointments")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade);

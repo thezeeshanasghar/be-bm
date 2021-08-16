@@ -356,7 +356,7 @@ namespace dotnet.Migrations
 
             modelBuilder.Entity("dotnet.Models.Appointment", b =>
                 {
-                    b.HasOne("dotnet.Models.Patient", "Patient")
+                    b.HasOne("dotnet.Models.Patient")
                         .WithMany("Appointments")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade);
