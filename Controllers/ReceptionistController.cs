@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ReceptionistController : ControllerBase
     {
         private readonly Context _db;
@@ -29,10 +31,7 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Receptionist>>(true, "Success: Acquired data.", receptionistList);
                 }
-                else
-                {
-                    return new Response<List<Receptionist>>(false, "Failure: Data does not exist.", null);
-                }
+                return new Response<List<Receptionist>>(false, "Failure: Data does not exist.", null);
             }
             catch (Exception exception)
             {
@@ -41,7 +40,7 @@ namespace dotnet.Controllers
         }
 
         [HttpGet("get/{id}")]
-        public async Task<Response<Receptionist>> GetItemById(long id)
+        public async Task<Response<Receptionist>> GetItemById(int id)
         {
             try
             {
@@ -50,10 +49,7 @@ namespace dotnet.Controllers
                 {
                     return new Response<Receptionist>(true, "Success: Acquired data.", receptionist);
                 }
-                else
-                {
-                    return new Response<Receptionist>(false, "Failure: Data doesnot exist.", null);
-                }
+                return new Response<Receptionist>(false, "Failure: Data doesnot exist.", null);
             }
             catch (Exception exception)
             {
@@ -116,7 +112,7 @@ namespace dotnet.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<Response<Receptionist>> UpdateItem(long id, ReceptionistRequest receptionistRequest)
+        public async Task<Response<Receptionist>> UpdateItem(int id, ReceptionistRequest receptionistRequest)
         {
             using var transaction = _db.Database.BeginTransaction();
             try

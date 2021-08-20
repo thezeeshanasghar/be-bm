@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PatientController : ControllerBase
     {
         private readonly Context _db;
@@ -38,7 +40,7 @@ namespace dotnet.Controllers
         }
 
         [HttpGet("get/{id}")]
-        public async Task<Response<Patient>> GetItemById(long id)
+        public async Task<Response<Patient>> GetItemById(int id)
         {
             try
             {
@@ -117,7 +119,7 @@ namespace dotnet.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<Response<Patient>> UpdateItem(long id, PatientRequest patientRequest)
+        public async Task<Response<Patient>> UpdateItem(int id, PatientRequest patientRequest)
         {
             using var transaction = _db.Database.BeginTransaction();
             try

@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ServiceController : ControllerBase
     {
         private readonly Context _db;
@@ -38,7 +40,7 @@ namespace dotnet.Controllers
         }
 
         [HttpGet("get/{id}")]
-        public async Task<Response<Service>> GetItemById(long id)
+        public async Task<Response<Service>> GetItemById(int id)
         {
             try
             {
@@ -75,7 +77,7 @@ namespace dotnet.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<Response<Service>> UpdateItem(long id, ServiceRequest serviceRequest)
+        public async Task<Response<Service>> UpdateItem(int id, ServiceRequest serviceRequest)
         {
             try
             {
@@ -101,7 +103,7 @@ namespace dotnet.Controllers
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<Response<Service>> DeleteItemById(long id)
+        public async Task<Response<Service>> DeleteItemById(int id)
         {
             try
             {

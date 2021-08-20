@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
@@ -41,7 +40,7 @@ namespace dotnet.Controllers
         }
 
         [HttpGet("get/{id}")]
-        public async Task<Response<Doctor>> GetItemById(long id)
+        public async Task<Response<Doctor>> GetItemById(int id)
         {
             try
             {
@@ -51,7 +50,6 @@ namespace dotnet.Controllers
                     return new Response<Doctor>(false, "Failure: Data doesn't exist.", null);
                 }
                 return new Response<Doctor>(true, "Success: Acquired data.", doctor);
-
             }
             catch (Exception exception)
             {
@@ -116,7 +114,7 @@ namespace dotnet.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<Response<Doctor>> UpdateItem(long id, DoctorRequest doctorRequest)
+        public async Task<Response<Doctor>> UpdateItem(int id, DoctorRequest doctorRequest)
         {
             using var transaction = _db.Database.BeginTransaction();
             try
@@ -185,7 +183,7 @@ namespace dotnet.Controllers
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<Response<Doctor>> DeleteItemById(long id)
+        public async Task<Response<Doctor>> DeleteItemById(int id)
         {
             try
             {

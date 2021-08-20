@@ -13,12 +13,12 @@ namespace dotnet.Controllers
     public class ReceiptController : ControllerBase
     {
 
-        private readonly Context _db;
+        // private readonly Context _db;
 
-        public ReceiptController(Context context)
-        {
-            _db = context;
-        }
+        // public ReceiptController(Context context)
+        // {
+        //     _db = context;
+        // }
 
         // GET api/Receipt
         // [HttpGet("get")]

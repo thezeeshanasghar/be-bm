@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class NurseController : ControllerBase
     {
         private readonly Context _db;
@@ -29,10 +31,7 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Nurse>>(true, "Success: Acquired data.", doctorList);
                 }
-                else
-                {
-                    return new Response<List<Nurse>>(false, "Failure: Data does not exist.", null);
-                }
+                return new Response<List<Nurse>>(false, "Failure: Data does not exist.", null);
             }
             catch (Exception exception)
             {
@@ -41,7 +40,7 @@ namespace dotnet.Controllers
         }
 
         [HttpGet("get/{id}")]
-        public async Task<Response<Nurse>> GetItemById(long id)
+        public async Task<Response<Nurse>> GetItemById(int id)
         {
             try
             {
@@ -50,10 +49,7 @@ namespace dotnet.Controllers
                 {
                     return new Response<Nurse>(true, "Success: Acquired data.", nurse);
                 }
-                else
-                {
-                    return new Response<Nurse>(false, "Failure: Data doesnot exist.", null);
-                }
+                return new Response<Nurse>(false, "Failure: Data doesnot exist.", null);
             }
             catch (Exception exception)
             {
@@ -117,7 +113,7 @@ namespace dotnet.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<Response<Nurse>> UpdateItem(long id, NurseRequest nurseRequest)
+        public async Task<Response<Nurse>> UpdateItem(int id, NurseRequest nurseRequest)
         {
             using var transaction = _db.Database.BeginTransaction();
             try

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
@@ -11,6 +10,7 @@ namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LoginController : ControllerBase
     {
         private readonly Context _db;
@@ -39,7 +39,7 @@ namespace dotnet.Controllers
         }
 
         [HttpGet("get/{id}")]
-        public async Task<Response<Login>> GetItemById(long id)
+        public async Task<Response<Login>> GetItemById(int id)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace dotnet.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<Response<Login>> UpdateItem(long id, Login loginObject)
+        public async Task<Response<Login>> UpdateItem(int id, Login loginObject)
         {
             if (id != loginObject.Id)
             {

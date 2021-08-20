@@ -13,12 +13,12 @@ namespace dotnet.Controllers
     public class AppointmentController : ControllerBase
     {
 
-        private readonly Context _db;
+        // private readonly Context _db;
 
-        public AppointmentController(Context context)
-        {
-            _db = context;
-        }
+        // public AppointmentController(Context context)
+        // {
+        //     _db = context;
+        // }
 
         // GET api/Appointment
         // [HttpGet("get")]

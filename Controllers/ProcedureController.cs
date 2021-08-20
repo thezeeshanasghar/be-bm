@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProcedureController : ControllerBase
     {
         private readonly Context _db;
@@ -38,7 +40,7 @@ namespace dotnet.Controllers
         }
 
         [HttpGet("get/{id}")]
-        public async Task<Response<Procedure>> GetItemById(long id)
+        public async Task<Response<Procedure>> GetItemById(int id)
         {
             try
             {
@@ -78,7 +80,7 @@ namespace dotnet.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<Response<Procedure>> UpdateItem(long id, ProcedureRequest procedureRequest)
+        public async Task<Response<Procedure>> UpdateItem(int id, ProcedureRequest procedureRequest)
         {
             try
             {

@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class InvoiceController : ControllerBase
     {
         private readonly Context _db;
@@ -38,7 +39,7 @@ namespace dotnet.Controllers
         }
 
         [HttpGet("get/{id}")]
-        public async Task<Response<Invoice>> GetItemById(long id)
+        public async Task<Response<Invoice>> GetItemById(int id)
         {
             try
             {
@@ -121,7 +122,7 @@ namespace dotnet.Controllers
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<Response<Invoice>> DeleteItemById(long id)
+        public async Task<Response<Invoice>> DeleteItemById(int id)
         {
             try
             {
