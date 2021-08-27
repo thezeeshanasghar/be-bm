@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
@@ -115,7 +114,7 @@ namespace dotnet.Controllers
                 _db.Services.Remove(service);
                 await _db.SaveChangesAsync();
 
-                return new Response<Service>(true, "Success: Deleted data.", null);
+                return new Response<Service>(true, "Success: Deleted data.", service);
             }
             catch (Exception exception)
             {

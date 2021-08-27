@@ -26,7 +26,7 @@ namespace dotnet.Controllers
         {
             try
             {
-                List<Patient> patientList = await _db.Patients.ToListAsync();
+                List<Patient> patientList = await _db.Patients.Include(x => x.User).ToListAsync();
                 if (patientList != null && patientList.Count > 0)
                 {
                     return new Response<List<Patient>>(true, "Success: Acquired data.", patientList);
@@ -44,7 +44,7 @@ namespace dotnet.Controllers
         {
             try
             {
-                Patient patient = await _db.Patients.FirstOrDefaultAsync(x => x.Id == id);
+                Patient patient = await _db.Patients.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
                 if (patient != null)
                 {
                     return new Response<Patient>(true, "Success: Acquired data.", patient);
@@ -53,7 +53,7 @@ namespace dotnet.Controllers
             }
             catch (Exception exception)
             {
-                return new Response<Patient>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+                return new Response<Patient>(false, $"Server Failure: Unable to get object. Because {exception.Message}", null);
             }
         }
 
@@ -114,7 +114,7 @@ namespace dotnet.Controllers
             catch (Exception exception)
             {
                 transaction.Rollback();
-                return new Response<Patient>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+                return new Response<Patient>(false, $"Server Failure: Unable to insert object. Because {exception.Message}", null);
             }
         }
 
@@ -126,12 +126,34 @@ namespace dotnet.Controllers
             {
                 if (id != patientRequest.Id)
                 {
+                    transaction.Rollback();
                     return new Response<Patient>(false, "Failure: Id sent in body does not match object Id", null);
                 }
-                User user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+
+                Patient patient = await _db.Patients.FirstOrDefaultAsync(x => x.Id == id); ;
+                if (patient == null)
+                {
+                    transaction.Rollback();
+                    return new Response<Patient>(false, $"Failure: Unable to update patient {patientRequest.FirstName}. Because Id is invalid. ", null);
+                }
+                patient.Category = patientRequest.Category;
+                patient.BirthPlace = patientRequest.BirthPlace;
+                patient.Type = patientRequest.Type;
+                patient.ExternalId = patientRequest.ExternalId;
+                patient.BloodGroup = patientRequest.BloodGroup;
+                patient.ClinicSite = patientRequest.ClinicSite;
+                patient.ReferredBy = patientRequest.ReferredBy;
+                patient.ReferredDate = patientRequest.ReferredDate;
+                patient.Guardian = patientRequest.Guardian;
+                patient.PaymentProfile = patientRequest.PaymentProfile;
+                patient.Description = patientRequest.Description;
+                await _db.SaveChangesAsync();
+
+                User user = await _db.Users.FirstOrDefaultAsync(x => x.Id == patient.UserId);
                 if (user == null)
                 {
-                    return new Response<Patient>(false, "Failure: Data doesnot exist.", null);
+                    transaction.Rollback();
+                    return new Response<Patient>(false, "Failure: Data does not exist.", null);
                 }
                 user.UserType = patientRequest.UserType;
                 user.FirstName = patientRequest.FirstName;
@@ -151,32 +173,13 @@ namespace dotnet.Controllers
                 user.Religion = patientRequest.Religion;
                 await _db.SaveChangesAsync();
 
-                Patient patient = await _db.Patients.FirstOrDefaultAsync(x => x.UserId == id); ;
-                if (patient == null)
-                {
-                    transaction.Rollback();
-                    return new Response<Patient>(false, $"Failure: Unable to update patient {patientRequest.FirstName}. Because Id is invalid. ", null);
-                }
-                patient.Category = patientRequest.Category;
-                patient.BirthPlace = patientRequest.BirthPlace;
-                patient.Type = patientRequest.Type;
-                patient.ExternalId = patientRequest.ExternalId;
-                patient.BloodGroup = patientRequest.BloodGroup;
-                patient.ClinicSite = patientRequest.ClinicSite;
-                patient.ReferredBy = patientRequest.ReferredBy;
-                patient.ReferredDate = patientRequest.ReferredDate;
-                patient.Guardian = patientRequest.Guardian;
-                patient.PaymentProfile = patientRequest.PaymentProfile;
-                patient.Description = patientRequest.Description;
-                await _db.SaveChangesAsync();
                 transaction.Commit();
-
                 return new Response<Patient>(true, "Success: Updated object.", patient);
             }
             catch (Exception exception)
             {
                 transaction.Rollback();
-                return new Response<Patient>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+                return new Response<Patient>(false, $"Server Failure: Unable to update object. Because {exception.Message}", null);
             }
         }
 
@@ -185,14 +188,20 @@ namespace dotnet.Controllers
         {
             try
             {
-                User user = await _db.Users.FindAsync(id);
+                Patient patient = await _db.Patients.FirstOrDefaultAsync(x => x.Id == id);
+                if (patient == null)
+                {
+                    return new Response<Patient>(false, $"Failure: Object with id={id} does not exist.", null);
+                }
+                User user = await _db.Users.FindAsync(patient.UserId);
                 if (user == null)
                 {
-                    return new Response<Patient>(false, "Failure: Object doesnot exist.", null);
+                    return new Response<Patient>(false, $"Failure: Object with id={id} does not exist.", null);
                 }
                 _db.Users.Remove(user);
                 await _db.SaveChangesAsync();
-                return new Response<Patient>(true, "Success: Object deleted.", null);
+
+                return new Response<Patient>(true, "Success: Deleted data.", patient);
             }
             catch (Exception exception)
             {

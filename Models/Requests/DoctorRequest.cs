@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace dotnet.Models
 {
@@ -28,7 +29,7 @@ namespace dotnet.Models
         public int EmergencyConsultationFee { get; set; }
         public int ShareInFee { get; set; }
         public string SpecialityType { get; set; }
-        
-        public virtual List<QualificationRequest> QualificationList { get; set; }
+
+        public List<QualificationRequest> QualificationList { get; set; }
     }
 }

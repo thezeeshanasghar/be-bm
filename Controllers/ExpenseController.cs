@@ -126,7 +126,7 @@ namespace dotnet.Controllers
                 _db.Expenses.Remove(expense);
                 await _db.SaveChangesAsync();
 
-                return new Response<Expense>(true, "Success: Deleted data.", null);
+                return new Response<Expense>(true, "Success: Deleted data.", expense);
             }
             catch (Exception exception)
             {

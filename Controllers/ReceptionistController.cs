@@ -26,7 +26,7 @@ namespace dotnet.Controllers
         {
             try
             {
-                List<Receptionist> receptionistList = await _db.Receptionists.ToListAsync();
+                List<Receptionist> receptionistList = await _db.Receptionists.Include(x => x.User).Include(x => x.User.Qualifications).ToListAsync();
                 if (receptionistList != null && receptionistList.Count > 0)
                 {
                     return new Response<List<Receptionist>>(true, "Success: Acquired data.", receptionistList);
@@ -44,7 +44,7 @@ namespace dotnet.Controllers
         {
             try
             {
-                Receptionist receptionist = await _db.Receptionists.FirstOrDefaultAsync(x => x.Id == id);
+                Receptionist receptionist = await _db.Receptionists.Include(x => x.User).Include(x => x.User.Qualifications).FirstOrDefaultAsync(x => x.Id == id);
                 if (receptionist != null)
                 {
                     return new Response<Receptionist>(true, "Success: Acquired data.", receptionist);
@@ -53,7 +53,7 @@ namespace dotnet.Controllers
             }
             catch (Exception exception)
             {
-                return new Response<Receptionist>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+                return new Response<Receptionist>(false, $"Server Failure: Unable to get object. Because {exception.Message}", null);
             }
         }
 
@@ -83,15 +83,21 @@ namespace dotnet.Controllers
                 await _db.Users.AddAsync(user);
                 await _db.SaveChangesAsync();
 
-                foreach (QualificationRequest drQualification in receptionistRequest.QualificationList)
+                if (receptionistRequest.QualificationList != null)
                 {
-                    Qualification qualification = new Qualification();
-                    qualification.UserId = user.Id;
-                    qualification.Certificate = drQualification.Certificate;
-                    qualification.Description = drQualification.Description;
-                    qualification.QualificationType = drQualification.QualificationType;
-                    await _db.Qualifications.AddAsync(qualification);
-                    await _db.SaveChangesAsync();
+                    if (receptionistRequest.QualificationList.Count > 0)
+                    {
+                        foreach (QualificationRequest drQualification in receptionistRequest.QualificationList)
+                        {
+                            Qualification qualification = new Qualification();
+                            qualification.UserId = user.Id;
+                            qualification.Certificate = drQualification.Certificate;
+                            qualification.Description = drQualification.Description;
+                            qualification.QualificationType = drQualification.QualificationType;
+                            await _db.Qualifications.AddAsync(qualification);
+                            await _db.SaveChangesAsync();
+                        }
+                    }
                 }
 
                 Receptionist receptionist = new Receptionist();
@@ -107,7 +113,7 @@ namespace dotnet.Controllers
             catch (Exception exception)
             {
                 transaction.Rollback();
-                return new Response<Receptionist>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+                return new Response<Receptionist>(false, $"Server Failure: Unable to insert object. Because {exception.Message}", null);
             }
         }
 
@@ -119,12 +125,45 @@ namespace dotnet.Controllers
             {
                 if (id != receptionistRequest.Id)
                 {
+                    transaction.Rollback();
                     return new Response<Receptionist>(false, "Failure: Id sent in body does not match object Id", null);
                 }
-                User user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+
+                Receptionist receptionist = await _db.Receptionists.Include(x => x.User.Qualifications).FirstOrDefaultAsync(x => x.Id == id); ;
+                if (receptionist == null)
+                {
+                    transaction.Rollback();
+                    return new Response<Receptionist>(false, $"Failure: Unable to update receptionist {receptionistRequest.FirstName}. Because Id is invalid. ", null);
+                }
+                receptionist.JobType = receptionistRequest.JobType;
+                receptionist.ShiftTime = receptionistRequest.ShiftTime;
+                await _db.SaveChangesAsync();
+
+                if (receptionistRequest.QualificationList != null)
+                {
+                    if (receptionistRequest.QualificationList.Count > 0)
+                    {
+                        foreach (QualificationRequest drQualification in receptionistRequest.QualificationList)
+                        {
+                            Qualification qualification = await _db.Qualifications.FirstOrDefaultAsync(x => x.Id == drQualification.Id && x.UserId == receptionist.UserId);
+                            if (qualification == null)
+                            {
+                                transaction.Rollback();
+                                return new Response<Receptionist>(false, $"Failure: Unable to update qualification {drQualification.Certificate}. Because Id is invalid. ", null);
+                            }
+                            qualification.Certificate = drQualification.Certificate;
+                            qualification.Description = drQualification.Description;
+                            qualification.QualificationType = drQualification.QualificationType;
+                            await _db.SaveChangesAsync();
+                        }
+                    }
+                }
+
+                User user = await _db.Users.FirstOrDefaultAsync(x => x.Id == receptionist.UserId);
                 if (user == null)
                 {
-                    return new Response<Receptionist>(false, "Failure: Data doesnot exist.", null);
+                    transaction.Rollback();
+                    return new Response<Receptionist>(false, "Failure: Data does not exist.", null);
                 }
                 user.UserType = receptionistRequest.UserType;
                 user.FirstName = receptionistRequest.FirstName;
@@ -144,38 +183,13 @@ namespace dotnet.Controllers
                 user.Religion = receptionistRequest.Religion;
                 await _db.SaveChangesAsync();
 
-                foreach (QualificationRequest drQualification in receptionistRequest.QualificationList)
-                {
-                    Qualification qualification = await _db.Qualifications.FirstOrDefaultAsync(x => x.Id == drQualification.Id);
-                    if (qualification == null)
-                    {
-                        transaction.Rollback();
-                        return new Response<Receptionist>(false, $"Failure: Unable to update qualification {drQualification.Certificate}. Because Id is invalid. ", null);
-                    }
-                    qualification.Certificate = drQualification.Certificate;
-                    qualification.Description = drQualification.Description;
-                    qualification.QualificationType = drQualification.QualificationType;
-                    await _db.SaveChangesAsync();
-                }
-
-                Receptionist receptionist = await _db.Receptionists.FirstOrDefaultAsync(x => x.UserId == id); ;
-                if (receptionist == null)
-                {
-                    transaction.Rollback();
-                    return new Response<Receptionist>(false, $"Failure: Unable to update receptionist {receptionistRequest.FirstName}. Because Id is invalid. ", null);
-                }
-                receptionist.JobType = receptionistRequest.JobType;
-                receptionist.ShiftTime = receptionistRequest.ShiftTime;
-
-                await _db.SaveChangesAsync();
                 transaction.Commit();
-
                 return new Response<Receptionist>(true, "Success: Updated object.", receptionist);
             }
             catch (Exception exception)
             {
                 transaction.Rollback();
-                return new Response<Receptionist>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+                return new Response<Receptionist>(false, $"Server Failure: Unable to update object. Because {exception.Message}", null);
             }
         }
 
@@ -184,14 +198,20 @@ namespace dotnet.Controllers
         {
             try
             {
-                User user = await _db.Users.FindAsync(id);
+                Receptionist receptionist = await _db.Receptionists.FirstOrDefaultAsync(x => x.Id == id);
+                if (receptionist == null)
+                {
+                    return new Response<Receptionist>(false, $"Failure: Object with id={id} does not exist.", null);
+                }
+                User user = await _db.Users.FindAsync(receptionist.UserId);
                 if (user == null)
                 {
-                    return new Response<Receptionist>(false, "Failure: Object doesnot exist.", null);
+                    return new Response<Receptionist>(false, $"Failure: Object with id={id} does not exist.", null);
                 }
                 _db.Users.Remove(user);
                 await _db.SaveChangesAsync();
-                return new Response<Receptionist>(true, "Success: Object deleted.", null);
+
+                return new Response<Receptionist>(true, "Success: Deleted data.", receptionist);
             }
             catch (Exception exception)
             {

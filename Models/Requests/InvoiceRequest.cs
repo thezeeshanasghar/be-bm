@@ -20,9 +20,9 @@ namespace dotnet.Models
 
         public string Pmid { get; set; }
         public double Discount { get; set; }
-        public long TotalAmount { get; set; }
-        public long PendingAmount { get; set; }
-        public long PaidAmount { get; set; }
+        public int TotalAmount { get; set; }
+        public int PendingAmount { get; set; }
+        public int PaidAmount { get; set; }
 
         public virtual List<InvoiceProcedureRequest> procedureList { get; set; }
     }

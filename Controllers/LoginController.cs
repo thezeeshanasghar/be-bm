@@ -115,7 +115,7 @@ namespace dotnet.Controllers
                 _db.Login.Remove(loginObject);
                 await _db.SaveChangesAsync();
 
-                return new Response<Login>(true, "Success: Object deleted.", null);
+                return new Response<Login>(true, "Success: Object deleted.", loginObject);
             }
             catch (Exception exception)
             {

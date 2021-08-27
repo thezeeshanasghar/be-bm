@@ -121,25 +121,25 @@ namespace dotnet.Controllers
             }
         }
 
-        [HttpDelete("delete/{id}")]
-        public async Task<Response<Invoice>> DeleteItemById(int id)
-        {
-            try
-            {
-                User user = await _db.Users.FindAsync(id);
-                if (user == null)
-                {
-                    return new Response<Invoice>(false, "Failure: Object doesnot exist.", null);
-                }
-                _db.Users.Remove(user);
-                await _db.SaveChangesAsync();
-                return new Response<Invoice>(true, "Success: Object deleted.", null);
-            }
-            catch (Exception exception)
-            {
-                return new Response<Invoice>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
-            }
-        }
+        // [HttpDelete("delete/{id}")]
+        // public async Task<Response<Invoice>> DeleteItemById(int id)
+        // {
+        //     try
+        //     {
+        //         User user = await _db.Users.FindAsync(id);
+        //         if (user == null)
+        //         {
+        //             return new Response<Invoice>(false, "Failure: Object doesnot exist.", null);
+        //         }
+        //         _db.Users.Remove(user);
+        //         await _db.SaveChangesAsync();
+        //         return new Response<Invoice>(true, "Success: Object deleted.", null);
+        //     }
+        //     catch (Exception exception)
+        //     {
+        //         return new Response<Invoice>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+        //     }
+        // }
 
     }
 }

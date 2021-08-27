@@ -25,7 +25,7 @@ namespace dotnet.Controllers
         {
             try
             {
-                List<Doctor> doctorList = await _db.Doctors.ToListAsync();
+                List<Doctor> doctorList = await _db.Doctors.Include(x => x.User).Include(x => x.User.Qualifications).ToListAsync();
                 if (doctorList != null && doctorList.Count > 0)
                 {
                     return new Response<List<Doctor>>(true, "Success: Acquired data.", doctorList);
@@ -44,7 +44,7 @@ namespace dotnet.Controllers
         {
             try
             {
-                Doctor doctor = await _db.Doctors.FirstOrDefaultAsync(x => x.Id == id);
+                Doctor doctor = await _db.Doctors.Include(x => x.User).Include(x => x.User.Qualifications).FirstOrDefaultAsync(x => x.Id == id);
                 if (doctor == null)
                 {
                     return new Response<Doctor>(false, "Failure: Data doesn't exist.", null);
@@ -83,15 +83,21 @@ namespace dotnet.Controllers
                 await _db.Users.AddAsync(user);
                 await _db.SaveChangesAsync();
 
-                foreach (QualificationRequest drQualification in doctorRequest.QualificationList)
+                if (doctorRequest.QualificationList != null)
                 {
-                    Qualification qualification = new Qualification();
-                    qualification.UserId = user.Id;
-                    qualification.Certificate = drQualification.Certificate;
-                    qualification.Description = drQualification.Description;
-                    qualification.QualificationType = drQualification.QualificationType;
-                    await _db.Qualifications.AddAsync(qualification);
-                    await _db.SaveChangesAsync();
+                    if (doctorRequest.QualificationList.Count > 0)
+                    {
+                        foreach (QualificationRequest drQualification in doctorRequest.QualificationList)
+                        {
+                            Qualification qualification = new Qualification();
+                            qualification.UserId = user.Id;
+                            qualification.Certificate = drQualification.Certificate;
+                            qualification.Description = drQualification.Description;
+                            qualification.QualificationType = drQualification.QualificationType;
+                            await _db.Qualifications.AddAsync(qualification);
+                            await _db.SaveChangesAsync();
+                        }
+                    }
                 }
 
                 Doctor doctor = new Doctor();
@@ -121,11 +127,46 @@ namespace dotnet.Controllers
             {
                 if (id != doctorRequest.Id)
                 {
+                    transaction.Rollback();
                     return new Response<Doctor>(false, "Failure: Id sent in body does not match object Id", null);
                 }
-                User user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+
+                Doctor doctor = await _db.Doctors.Include(x => x.User.Qualifications).FirstOrDefaultAsync(x => x.Id == id);
+                if (doctor == null)
+                {
+                    transaction.Rollback();
+                    return new Response<Doctor>(false, $"Failure: Unable to update doctor {doctorRequest.FirstName}. Because Id is invalid. ", null);
+                }
+                doctor.ConsultationFee = doctorRequest.ConsultationFee;
+                doctor.EmergencyConsultationFee = doctorRequest.EmergencyConsultationFee;
+                doctor.ShareInFee = doctorRequest.ShareInFee;
+                doctor.SpecialityType = doctorRequest.SpecialityType;
+                await _db.SaveChangesAsync();
+
+                if (doctorRequest.QualificationList != null)
+                {
+                    if (doctorRequest.QualificationList.Count > 0)
+                    {
+                        foreach (QualificationRequest drQualification in doctorRequest.QualificationList)
+                        {
+                            Qualification qualification = await _db.Qualifications.FirstOrDefaultAsync(x => x.Id == drQualification.Id && x.UserId == doctor.UserId);
+                            if (qualification == null)
+                            {
+                                transaction.Rollback();
+                                return new Response<Doctor>(false, $"Failure: Unable to update qualification {drQualification.Certificate}. Because Id is invalid. ", null);
+                            }
+                            qualification.Certificate = drQualification.Certificate;
+                            qualification.Description = drQualification.Description;
+                            qualification.QualificationType = drQualification.QualificationType;
+                            await _db.SaveChangesAsync();
+                        }
+                    }
+                }
+
+                User user = await _db.Users.FirstOrDefaultAsync(x => x.Id == doctor.UserId);
                 if (user == null)
                 {
+                    transaction.Rollback();
                     return new Response<Doctor>(false, "Failure: Data doesn't exist.", null);
                 }
                 user.UserType = doctorRequest.UserType;
@@ -146,32 +187,6 @@ namespace dotnet.Controllers
                 user.Religion = doctorRequest.Religion;
                 await _db.SaveChangesAsync();
 
-                foreach (QualificationRequest drQualification in doctorRequest.QualificationList)
-                {
-                    Qualification qualification = await _db.Qualifications.FirstOrDefaultAsync(x => x.Id == drQualification.Id);
-                    if (qualification == null)
-                    {
-                        transaction.Rollback();
-                        return new Response<Doctor>(false, $"Failure: Unable to update qualification {drQualification.Certificate}. Because Id is invalid. ", null);
-                    }
-                    qualification.Certificate = drQualification.Certificate;
-                    qualification.Description = drQualification.Description;
-                    qualification.QualificationType = drQualification.QualificationType;
-                    await _db.SaveChangesAsync();
-                }
-
-                Doctor doctor = await _db.Doctors.FirstOrDefaultAsync(x => x.UserId == id); ;
-                if (doctor == null)
-                {
-                    transaction.Rollback();
-                    return new Response<Doctor>(false, $"Failure: Unable to update doctor {doctorRequest.FirstName}. Because Id is invalid. ", null);
-                }
-                doctor.ConsultationFee = doctorRequest.ConsultationFee;
-                doctor.EmergencyConsultationFee = doctorRequest.EmergencyConsultationFee;
-                doctor.ShareInFee = doctorRequest.ShareInFee;
-                doctor.SpecialityType = doctorRequest.SpecialityType;
-                await _db.SaveChangesAsync();
-
                 transaction.Commit();
                 return new Response<Doctor>(true, "Success: Updated data.", doctor);
             }
@@ -187,14 +202,20 @@ namespace dotnet.Controllers
         {
             try
             {
-                User user = await _db.Users.FindAsync(id);
+                Doctor doctor = await _db.Doctors.FirstOrDefaultAsync(x => x.Id == id);
+                if (doctor == null)
+                {
+                    return new Response<Doctor>(false, $"Failure: Object with id={id} does not exist.", null);
+                }
+                User user = await _db.Users.FindAsync(doctor.UserId);
                 if (user == null)
                 {
-                    return new Response<Doctor>(false, "Failure: Object doesn't exist.", null);
+                    return new Response<Doctor>(false, $"Failure: Object with id={id} does not exist.", null);
                 }
                 _db.Users.Remove(user);
                 await _db.SaveChangesAsync();
-                return new Response<Doctor>(true, "Success: Deleted data.", null);
+
+                return new Response<Doctor>(true, "Success: Deleted data.", doctor);
             }
             catch (Exception exception)
             {

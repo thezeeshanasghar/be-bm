@@ -120,7 +120,7 @@ namespace dotnet.Controllers
                 _db.Procedures.Remove(procedure);
                 await _db.SaveChangesAsync();
 
-                return new Response<Procedure>(true, "Success: Deleted data.", null);
+                return new Response<Procedure>(true, "Success: Deleted data.", procedure);
             }
             catch (Exception exception)
             {

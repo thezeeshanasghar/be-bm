@@ -26,7 +26,7 @@ namespace dotnet.Controllers
         {
             try
             {
-                List<Nurse> doctorList = await _db.Nurses.ToListAsync();
+                List<Nurse> doctorList = await _db.Nurses.Include(x => x.User).ToListAsync();
                 if (doctorList != null && doctorList.Count > 0)
                 {
                     return new Response<List<Nurse>>(true, "Success: Acquired data.", doctorList);
@@ -44,7 +44,7 @@ namespace dotnet.Controllers
         {
             try
             {
-                Nurse nurse = await _db.Nurses.FirstOrDefaultAsync(x => x.Id == id);
+                Nurse nurse = await _db.Nurses.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
                 if (nurse != null)
                 {
                     return new Response<Nurse>(true, "Success: Acquired data.", nurse);
@@ -83,15 +83,21 @@ namespace dotnet.Controllers
                 await _db.Users.AddAsync(user);
                 await _db.SaveChangesAsync();
 
-                foreach (QualificationRequest drQualification in nurseRequest.QualificationList)
+                if (nurseRequest.QualificationList != null)
                 {
-                    Qualification qualification = new Qualification();
-                    qualification.UserId = user.Id;
-                    qualification.Certificate = drQualification.Certificate;
-                    qualification.Description = drQualification.Description;
-                    qualification.QualificationType = drQualification.QualificationType;
-                    await _db.Qualifications.AddAsync(qualification);
-                    await _db.SaveChangesAsync();
+                    if (nurseRequest.QualificationList.Count > 0)
+                    {
+                        foreach (QualificationRequest drQualification in nurseRequest.QualificationList)
+                        {
+                            Qualification qualification = new Qualification();
+                            qualification.UserId = user.Id;
+                            qualification.Certificate = drQualification.Certificate;
+                            qualification.Description = drQualification.Description;
+                            qualification.QualificationType = drQualification.QualificationType;
+                            await _db.Qualifications.AddAsync(qualification);
+                            await _db.SaveChangesAsync();
+                        }
+                    }
                 }
 
                 Nurse nurse = new Nurse();
@@ -120,11 +126,45 @@ namespace dotnet.Controllers
             {
                 if (id != nurseRequest.Id)
                 {
+                    transaction.Rollback();
                     return new Response<Nurse>(false, "Failure: Id sent in body does not match object Id", null);
                 }
-                User user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+
+                Nurse nurse = await _db.Nurses.Include(x => x.User.Qualifications).FirstOrDefaultAsync(x => x.Id == id); ;
+                if (nurse == null)
+                {
+                    transaction.Rollback();
+                    return new Response<Nurse>(false, $"Failure: Unable to update Nurse {nurseRequest.FirstName}. Because Id is invalid. ", null);
+                }
+                nurse.DutyDuration = nurseRequest.DutyDuration;
+                nurse.SharePercentage = nurseRequest.SharePercentage;
+                nurse.Salary = nurseRequest.Salary;
+                await _db.SaveChangesAsync();
+
+                if (nurseRequest.QualificationList != null)
+                {
+                    if (nurseRequest.QualificationList.Count > 0)
+                    {
+                        foreach (QualificationRequest drQualification in nurseRequest.QualificationList)
+                        {
+                            Qualification qualification = await _db.Qualifications.FirstOrDefaultAsync(x => x.Id == drQualification.Id && x.UserId == nurse.UserId);
+                            if (qualification == null)
+                            {
+                                transaction.Rollback();
+                                return new Response<Nurse>(false, $"Failure: Unable to update qualification {drQualification.Certificate}. Because Id is invalid. ", null);
+                            }
+                            qualification.Certificate = drQualification.Certificate;
+                            qualification.Description = drQualification.Description;
+                            qualification.QualificationType = drQualification.QualificationType;
+                            await _db.SaveChangesAsync();
+                        }
+                    }
+                }
+
+                User user = await _db.Users.FirstOrDefaultAsync(x => x.Id == nurse.UserId);
                 if (user == null)
                 {
+                    transaction.Rollback();
                     return new Response<Nurse>(false, "Failure: Data doesnot exist.", null);
                 }
                 user.UserType = nurseRequest.UserType;
@@ -145,39 +185,13 @@ namespace dotnet.Controllers
                 user.Religion = nurseRequest.Religion;
                 await _db.SaveChangesAsync();
 
-                foreach (QualificationRequest drQualification in nurseRequest.QualificationList)
-                {
-                    Qualification qualification = await _db.Qualifications.FirstOrDefaultAsync(x => x.Id == drQualification.Id);
-                    if (qualification == null)
-                    {
-                        transaction.Rollback();
-                        return new Response<Nurse>(false, $"Failure: Unable to update qualification {drQualification.Certificate}. Because Id is invalid. ", null);
-                    }
-                    qualification.Certificate = drQualification.Certificate;
-                    qualification.Description = drQualification.Description;
-                    qualification.QualificationType = drQualification.QualificationType;
-                    await _db.SaveChangesAsync();
-                }
-
-                Nurse nurse = await _db.Nurses.FirstOrDefaultAsync(x => x.UserId == id); ;
-                if (nurse == null)
-                {
-                    transaction.Rollback();
-                    return new Response<Nurse>(false, $"Failure: Unable to update Nurse {nurseRequest.FirstName}. Because Id is invalid. ", null);
-                }
-                nurse.DutyDuration = nurseRequest.DutyDuration;
-                nurse.SharePercentage = nurseRequest.SharePercentage;
-                nurse.Salary = nurseRequest.Salary;
-
-                await _db.SaveChangesAsync();
                 transaction.Commit();
-
                 return new Response<Nurse>(true, "Success: Updated object.", nurse);
             }
             catch (Exception exception)
             {
                 transaction.Rollback();
-                return new Response<Nurse>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+                return new Response<Nurse>(false, $"Server Failure: Unable to update object. Because {exception.Message}", null);
             }
         }
 
@@ -186,14 +200,20 @@ namespace dotnet.Controllers
         {
             try
             {
-                User user = await _db.Users.FindAsync(id);
+                Nurse nurse = await _db.Nurses.FirstOrDefaultAsync(x => x.Id == id);
+                if (nurse == null)
+                {
+                    return new Response<Nurse>(false, $"Failure: Object with id={id} does not exist.", null);
+                }
+                User user = await _db.Users.FindAsync(nurse.UserId);
                 if (user == null)
                 {
-                    return new Response<Nurse>(false, "Failure: Object doesnot exist.", null);
+                    return new Response<Nurse>(false, $"Failure: Object with id={id} does not exist.", null);
                 }
                 _db.Users.Remove(user);
                 await _db.SaveChangesAsync();
-                return new Response<Nurse>(true, "Success: Object deleted.", null);
+                
+                return new Response<Nurse>(true, "Success: Deleted data.", nurse);
             }
             catch (Exception exception)
             {
