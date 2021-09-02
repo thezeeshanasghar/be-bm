@@ -69,11 +69,11 @@ namespace dotnet.Migrations
 
                     b.Property<string>("BillType");
 
-                    b.Property<string>("EmployeeName");
+                    b.Property<string>("Category");
 
                     b.Property<string>("EmployeeOrVender");
 
-                    b.Property<string>("ExpenseCategory");
+                    b.Property<string>("Name");
 
                     b.Property<string>("PaymentType");
 
@@ -81,9 +81,13 @@ namespace dotnet.Migrations
 
                     b.Property<string>("TransactionDetail");
 
+                    b.Property<int>("UserId");
+
                     b.Property<string>("VoucherNo");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Expenses");
                 });
@@ -259,17 +263,17 @@ namespace dotnet.Migrations
 
                     b.Property<int>("InvoiceId");
 
-                    b.Property<long>("PaidAmount");
+                    b.Property<int>("PaidAmount");
 
                     b.Property<int>("PatientId");
 
-                    b.Property<long>("PendingAmount");
+                    b.Property<int>("PendingAmount");
 
                     b.Property<string>("Pmid");
 
                     b.Property<int>("ReceiptionistId");
 
-                    b.Property<long>("TotalAmount");
+                    b.Property<int>("TotalAmount");
 
                     b.HasKey("Id");
 
@@ -363,6 +367,14 @@ namespace dotnet.Migrations
                 });
 
             modelBuilder.Entity("dotnet.Models.Doctor", b =>
+                {
+                    b.HasOne("dotnet.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("dotnet.Models.Expense", b =>
                 {
                     b.HasOne("dotnet.Models.User", "User")
                         .WithMany()

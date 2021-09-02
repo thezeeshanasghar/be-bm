@@ -3,30 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace dotnet.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class initialcreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Expenses",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("MySQL:AutoIncrement", true),
-                    BillType = table.Column<string>(nullable: true),
-                    PaymentType = table.Column<string>(nullable: true),
-                    EmployeeOrVender = table.Column<string>(nullable: true),
-                    VoucherNo = table.Column<string>(nullable: true),
-                    ExpenseCategory = table.Column<string>(nullable: true),
-                    EmployeeName = table.Column<string>(nullable: true),
-                    TotalBill = table.Column<double>(nullable: false),
-                    TransactionDetail = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Expenses", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Login",
                 columns: table => new
@@ -117,6 +97,33 @@ namespace dotnet.Migrations
                     table.PrimaryKey("PK_Doctors", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Doctors_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Expenses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("MySQL:AutoIncrement", true),
+                    UserId = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    BillType = table.Column<string>(nullable: true),
+                    PaymentType = table.Column<string>(nullable: true),
+                    EmployeeOrVender = table.Column<string>(nullable: true),
+                    VoucherNo = table.Column<string>(nullable: true),
+                    Category = table.Column<string>(nullable: true),
+                    TotalBill = table.Column<double>(nullable: false),
+                    TransactionDetail = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Expenses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Expenses_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -254,9 +261,9 @@ namespace dotnet.Migrations
                     InvoiceId = table.Column<int>(nullable: false),
                     Pmid = table.Column<string>(nullable: true),
                     Discount = table.Column<double>(nullable: false),
-                    TotalAmount = table.Column<long>(nullable: false),
-                    PendingAmount = table.Column<long>(nullable: false),
-                    PaidAmount = table.Column<long>(nullable: false)
+                    TotalAmount = table.Column<int>(nullable: false),
+                    PendingAmount = table.Column<int>(nullable: false),
+                    PaidAmount = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -342,6 +349,11 @@ namespace dotnet.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Doctors_UserId",
                 table: "Doctors",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Expenses_UserId",
+                table: "Expenses",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(

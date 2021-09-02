@@ -25,7 +25,7 @@ namespace dotnet.Controllers
         {
             try
             {
-                List<Expense> expenseList = await _db.Expenses.ToListAsync();
+                List<Expense> expenseList = await _db.Expenses.Include(x => x.User).ToListAsync();
                 if (expenseList != null && expenseList.Count > 0)
                 {
                     return new Response<List<Expense>>(true, "Success: Acquired data.", expenseList);
@@ -43,7 +43,7 @@ namespace dotnet.Controllers
         {
             try
             {
-                Expense expense = await _db.Expenses.FirstOrDefaultAsync(x => x.Id == id);
+                Expense expense = await _db.Expenses.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
                 if (expense == null)
                 {
                     return new Response<Expense>(false, "Failure: Data doesn't exist.", null);
@@ -62,12 +62,13 @@ namespace dotnet.Controllers
             try
             {
                 Expense expense = new Expense();
+                expense.UserId = expense.UserId;
+                expense.Name = expenseRequest.Name;
                 expense.BillType = expense.BillType;
                 expense.PaymentType = expenseRequest.PaymentType;
                 expense.EmployeeOrVender = expenseRequest.EmployeeOrVender;
                 expense.VoucherNo = expenseRequest.VoucherNo;
-                expense.ExpenseCategory = expenseRequest.ExpenseCategory;
-                expense.EmployeeName = expenseRequest.EmployeeName;
+                expense.Category = expenseRequest.Category;
                 expense.TotalBill = expenseRequest.TotalBill;
                 expense.TransactionDetail = expenseRequest.TransactionDetail;
                 await _db.Expenses.AddAsync(expense);
@@ -95,12 +96,13 @@ namespace dotnet.Controllers
                 {
                     return new Response<Expense>(false, $"Failure: Unable to update expense. Because Id is invalid. ", null);
                 }
+                expense.UserId = expense.UserId;
+                expense.Name = expenseRequest.Name;
                 expense.BillType = expense.BillType;
                 expense.PaymentType = expenseRequest.PaymentType;
                 expense.EmployeeOrVender = expenseRequest.EmployeeOrVender;
                 expense.VoucherNo = expenseRequest.VoucherNo;
-                expense.ExpenseCategory = expenseRequest.ExpenseCategory;
-                expense.EmployeeName = expenseRequest.EmployeeName;
+                expense.Category = expenseRequest.Category;
                 expense.TotalBill = expenseRequest.TotalBill;
                 expense.TransactionDetail = expenseRequest.TransactionDetail;
                 await _db.SaveChangesAsync();
