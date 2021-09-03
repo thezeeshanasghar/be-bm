@@ -11,7 +11,7 @@ namespace dotnet.Models
         public string EmployeeOrVender { get; set; }
         public string VoucherNo { get; set; }
         public string Category { get; set; }
-        public double TotalBill { get; set; }
+        public int TotalBill { get; set; }
         public string TransactionDetail { get; set; }
     }
 }
