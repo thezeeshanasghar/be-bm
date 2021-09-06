@@ -61,6 +61,11 @@ namespace dotnet.Controllers
         {
             try
             {
+                User user = await _db.Users.FindAsync(expenseRequest.UserId);
+                if (user == null)
+                {
+                    return new Response<Expense>(false, "Failure: User belonging to this id does not exist.", null);
+                }
                 Expense expense = new Expense();
                 expense.UserId = expense.UserId;
                 expense.Name = expenseRequest.Name;
@@ -71,6 +76,7 @@ namespace dotnet.Controllers
                 expense.Category = expenseRequest.Category;
                 expense.TotalBill = expenseRequest.TotalBill;
                 expense.TransactionDetail = expenseRequest.TransactionDetail;
+                expense.User = user;
                 await _db.Expenses.AddAsync(expense);
                 await _db.SaveChangesAsync();
 

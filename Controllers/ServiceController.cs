@@ -10,7 +10,7 @@ namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    // [Authorize]
+    [Authorize]
     public class ServiceController : ControllerBase
     {
         private readonly Context _db;
