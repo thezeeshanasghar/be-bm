@@ -27,9 +27,12 @@ namespace dotnet.Controllers
             try
             {
                 List<Receptionist> receptionistList = await _db.Receptionists.Include(x => x.User).Include(x => x.User.Qualifications).ToListAsync();
-                if (receptionistList != null && receptionistList.Count > 0)
+                if (receptionistList != null)
                 {
-                    return new Response<List<Receptionist>>(true, "Success: Acquired data.", receptionistList);
+                    if (receptionistList.Count > 0)
+                    {
+                        return new Response<List<Receptionist>>(true, "Success: Acquired data.", receptionistList);
+                    }
                 }
                 return new Response<List<Receptionist>>(false, "Failure: Data does not exist.", null);
             }
@@ -39,7 +42,7 @@ namespace dotnet.Controllers
             }
         }
 
-        [HttpGet("get/{id}")]
+        [HttpGet("get/id/{id}")]
         public async Task<Response<Receptionist>> GetItemById(int id)
         {
             try
@@ -54,6 +57,31 @@ namespace dotnet.Controllers
             catch (Exception exception)
             {
                 return new Response<Receptionist>(false, $"Server Failure: Unable to get object. Because {exception.Message}", null);
+            }
+        }
+
+        [HttpGet("search/{search}")]
+        public async Task<Response<List<Receptionist>>> SearchItems(String search)
+        {
+            try
+            {
+                if (String.IsNullOrEmpty(search))
+                {
+                    return new Response<List<Receptionist>>(false, "Failure: Enter a valid search string.", null);
+                }
+                List<Receptionist> receptionistList = await _db.Receptionists.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || x.JobType.Contains(search) || x.ShiftTime.Contains(search) || x.User.MaritalStatus.Contains(search) || x.User.Religion.Contains(search) || x.User.FirstName.Contains(search) || x.User.LastName.Contains(search) || x.User.FatherHusbandName.Contains(search) || x.User.Gender.Contains(search) || x.User.Cnic.Contains(search) || x.User.Contact.Contains(search) || x.User.EmergencyContact.Contains(search) || x.User.Email.Contains(search) || x.User.Address.Contains(search) || x.User.Experience.Contains(search) || x.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).Include(x => x.User).ToListAsync();
+                if (receptionistList != null)
+                {
+                    if (receptionistList.Count > 0)
+                    {
+                        return new Response<List<Receptionist>>(true, "Success: Acquired data.", receptionistList);
+                    }
+                }
+                return new Response<List<Receptionist>>(false, "Failure: Database is empty.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Receptionist>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
         }
 

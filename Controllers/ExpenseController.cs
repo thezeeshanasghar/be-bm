@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
@@ -26,9 +27,12 @@ namespace dotnet.Controllers
             try
             {
                 List<Expense> expenseList = await _db.Expenses.Include(x => x.User).ToListAsync();
-                if (expenseList != null && expenseList.Count > 0)
+                if (expenseList != null)
                 {
-                    return new Response<List<Expense>>(true, "Success: Acquired data.", expenseList);
+                    if (expenseList.Count > 0)
+                    {
+                        return new Response<List<Expense>>(true, "Success: Acquired data.", expenseList);
+                    }
                 }
                 return new Response<List<Expense>>(false, "Failure: Database is empty.", null);
             }
@@ -38,7 +42,7 @@ namespace dotnet.Controllers
             }
         }
 
-        [HttpGet("get/{id}")]
+        [HttpGet("get/id/{id}")]
         public async Task<Response<Expense>> GetItemById(int id)
         {
             try
@@ -56,6 +60,31 @@ namespace dotnet.Controllers
             }
         }
 
+        [HttpGet("search/{search}")]
+        public async Task<Response<List<Expense>>> SearchItems(String search)
+        {
+            try
+            {
+                if (String.IsNullOrEmpty(search))
+                {
+                    return new Response<List<Expense>>(false, "Failure: Enter a valid search string.", null);
+                }
+                List<Expense> expenseList = await _db.Expenses.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || x.Name.Contains(search) || x.BillType.Contains(search) || x.PaymentType.Contains(search) || x.EmployeeOrVender.Contains(search) || x.Category.Contains(search) || x.Name.Contains(search) || x.TransactionDetail.Contains(search) || x.VoucherNo.Contains(search)).Include(x => x.User).OrderBy(x => x.Id).Take(10).ToListAsync();
+                if (expenseList != null)
+                {
+                    if (expenseList.Count > 0)
+                    {
+                        return new Response<List<Expense>>(true, "Success: Acquired data.", expenseList);
+                    }
+                }
+                return new Response<List<Expense>>(false, "Failure: Database is empty.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Expense>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
+            }
+        }
+
         [HttpPost("insert")]
         public async Task<Response<Expense>> InsertItem(ExpenseRequest expenseRequest)
         {
@@ -69,7 +98,7 @@ namespace dotnet.Controllers
                 Expense expense = new Expense();
                 expense.UserId = expense.UserId;
                 expense.Name = expenseRequest.Name;
-                expense.BillType = expense.BillType;
+                expense.BillType = expenseRequest.BillType;
                 expense.PaymentType = expenseRequest.PaymentType;
                 expense.EmployeeOrVender = expenseRequest.EmployeeOrVender;
                 expense.VoucherNo = expenseRequest.VoucherNo;

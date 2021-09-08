@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
@@ -26,9 +27,12 @@ namespace dotnet.Controllers
             try
             {
                 List<Invoice> invoiceList = await _db.Invoices.ToListAsync();
-                if (invoiceList != null && invoiceList.Count > 0)
+                if (invoiceList != null)
                 {
-                    return new Response<List<Invoice>>(true, "Success: Acquired data.", invoiceList);
+                    if (invoiceList.Count > 0)
+                    {
+                        return new Response<List<Invoice>>(true, "Success: Acquired data.", invoiceList);
+                    }
                 }
                 return new Response<List<Invoice>>(false, "Failure: Data does not exist.", null);
             }
@@ -38,7 +42,7 @@ namespace dotnet.Controllers
             }
         }
 
-        [HttpGet("get/{id}")]
+        [HttpGet("get/id/{id}")]
         public async Task<Response<Invoice>> GetItemById(int id)
         {
             try
@@ -53,6 +57,31 @@ namespace dotnet.Controllers
             catch (Exception exception)
             {
                 return new Response<Invoice>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
+            }
+        }
+
+        [HttpGet("search/{search}")]
+        public async Task<Response<List<Invoice>>> SearchItems(String search)
+        {
+            try
+            {
+                if (String.IsNullOrEmpty(search))
+                {
+                    return new Response<List<Invoice>>(false, "Failure: Enter a valid search string.", null);
+                }
+                List<Invoice> invoiceList = await _db.Invoices.Where(x => x.Id.ToString().Contains(search) || x.AppointmentId.ToString().Contains(search) || x.DoctorId.ToString().Contains(search) || x.PatientId.ToString().Contains(search)|| x.Date.ToString().Contains(search)|| x.CheckupType.Contains(search)|| x.CheckupFee.ToString().Contains(search)|| x.PaymentType.Contains(search)|| x.Disposibles.ToString().Contains(search)|| x.GrossAmount.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
+                if (invoiceList != null)
+                {
+                    if (invoiceList.Count > 0)
+                    {
+                        return new Response<List<Invoice>>(true, "Success: Acquired data.", invoiceList);
+                    }
+                }
+                return new Response<List<Invoice>>(false, "Failure: Database is empty.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Invoice>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
         }
 

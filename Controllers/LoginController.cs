@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
@@ -26,9 +27,12 @@ namespace dotnet.Controllers
             try
             {
                 List<Login> loginList = await _db.Login.ToListAsync();
-                if (loginList != null && loginList.Count > 0)
+                if (loginList != null)
                 {
-                    return new Response<List<Login>>(true, "Success: Acquired data.", loginList);
+                    if (loginList.Count > 0)
+                    {
+                        return new Response<List<Login>>(true, "Success: Acquired data.", loginList);
+                    }
                 }
                 return new Response<List<Login>>(false, "Failure: Data does not exist.", null);
             }
@@ -38,7 +42,7 @@ namespace dotnet.Controllers
             }
         }
 
-        [HttpGet("get/{id}")]
+        [HttpGet("get/id/{id}")]
         public async Task<Response<Login>> GetItemById(int id)
         {
             try
@@ -53,6 +57,31 @@ namespace dotnet.Controllers
             catch (Exception exception)
             {
                 return new Response<Login>(false, "Server Failure: Unable to get data. Because " + exception.Message, null);
+            }
+        }
+
+        [HttpGet("search/{search}")]
+        public async Task<Response<List<Login>>> SearchItems(String search)
+        {
+            try
+            {
+                if (String.IsNullOrEmpty(search))
+                {
+                    return new Response<List<Login>>(false, "Failure: Enter a valid search string.", null);
+                }
+                List<Login> loginList = await _db.Login.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || x.UserName.Contains(search) || x.Password.Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
+                if (loginList != null)
+                {
+                    if (loginList.Count > 0)
+                    {
+                        return new Response<List<Login>>(true, "Success: Acquired data.", loginList);
+                    }
+                }
+                return new Response<List<Login>>(false, "Failure: Database is empty.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Login>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
         }
 

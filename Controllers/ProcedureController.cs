@@ -27,9 +27,12 @@ namespace dotnet.Controllers
             try
             {
                 List<Procedure> procedureList = await _db.Procedures.ToListAsync();
-                if (procedureList != null && procedureList.Count > 0)
+                if (procedureList != null)
                 {
-                    return new Response<List<Procedure>>(true, "Success: Acquired data.", procedureList);
+                    if (procedureList.Count > 0)
+                    {
+                        return new Response<List<Procedure>>(true, "Success: Acquired data.", procedureList);
+                    }
                 }
                 return new Response<List<Procedure>>(false, "Failure: Database is empty.", null);
             }
@@ -39,7 +42,7 @@ namespace dotnet.Controllers
             }
         }
 
-        [HttpGet("get/{id}")]
+        [HttpGet("get/id/{id}")]
         public async Task<Response<Procedure>> GetItemById(int id)
         {
             try
@@ -58,6 +61,31 @@ namespace dotnet.Controllers
             }
         }
 
+        [HttpGet("search/{search}")]
+        public async Task<Response<List<Procedure>>> SearchItems(String search)
+        {
+            try
+            {
+                if (String.IsNullOrEmpty(search))
+                {
+                    return new Response<List<Procedure>>(false, "Failure: Enter a valid search string.", null);
+                }
+                List<Procedure> procedureList = await _db.Procedures.Where(x => x.Id.ToString().Contains(search) || x.Name.Contains(search) || x.ExecutantShare.ToString().Contains(search) || x.Charges.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
+                if (procedureList != null)
+                {
+                    if (procedureList.Count > 0)
+                    {
+                        return new Response<List<Procedure>>(true, "Success: Acquired data.", procedureList);
+                    }
+                }
+                return new Response<List<Procedure>>(false, "Failure: Database is empty.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Procedure>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
+            }
+        }
+
         [HttpPost("insert")]
         public async Task<Response<Procedure>> InsertItem(ProcedureRequest procedureRequest)
         {
@@ -68,6 +96,7 @@ namespace dotnet.Controllers
                 procedure.Executant = procedureRequest.Executant;
                 procedure.ExecutantShare = procedureRequest.ExecutantShare;
                 procedure.Charges = procedureRequest.Charges;
+                procedure.Consent = procedureRequest.Consent;
                 await _db.Procedures.AddAsync(procedure);
                 await _db.SaveChangesAsync();
 
@@ -97,6 +126,7 @@ namespace dotnet.Controllers
                 procedure.Executant = procedureRequest.Executant;
                 procedure.ExecutantShare = procedureRequest.ExecutantShare;
                 procedure.Charges = procedureRequest.Charges;
+                procedure.Consent = procedureRequest.Consent;
                 await _db.SaveChangesAsync();
 
                 return new Response<Procedure>(true, "Success: Updated data.", procedure);

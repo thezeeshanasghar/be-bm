@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
@@ -26,9 +27,12 @@ namespace dotnet.Controllers
             try
             {
                 List<Service> serviceList = await _db.Services.ToListAsync();
-                if (serviceList != null && serviceList.Count > 0)
+                if (serviceList != null)
                 {
-                    return new Response<List<Service>>(true, "Success: Acquired data.", serviceList);
+                    if (serviceList.Count > 0)
+                    {
+                        return new Response<List<Service>>(true, "Success: Acquired data.", serviceList);
+                    }
                 }
                 return new Response<List<Service>>(false, "Failure: Database is empty.", null);
             }
@@ -38,7 +42,7 @@ namespace dotnet.Controllers
             }
         }
 
-        [HttpGet("get/{id}")]
+        [HttpGet("get/id/{id}")]
         public async Task<Response<Service>> GetItemById(int id)
         {
             try
@@ -53,6 +57,31 @@ namespace dotnet.Controllers
             catch (Exception exception)
             {
                 return new Response<Service>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
+            }
+        }
+
+        [HttpGet("search/{search}")]
+        public async Task<Response<List<Service>>> SearchItems(String search)
+        {
+            try
+            {
+                if (String.IsNullOrEmpty(search))
+                {
+                    return new Response<List<Service>>(false, "Failure: Enter a valid search string.", null);
+                }
+                List<Service> serviceList = await _db.Services.Where(x => x.Id.ToString().Contains(search) || x.Name.Contains(search) || x.Description.Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
+                if (serviceList != null)
+                {
+                    if (serviceList.Count > 0)
+                    {
+                        return new Response<List<Service>>(true, "Success: Acquired data.", serviceList);
+                    }
+                }
+                return new Response<List<Service>>(false, "Failure: Database is empty.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Service>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
         }
 

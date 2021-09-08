@@ -27,9 +27,12 @@ namespace dotnet.Controllers
             try
             {
                 List<Patient> patientList = await _db.Patients.Include(x => x.User).ToListAsync();
-                if (patientList != null && patientList.Count > 0)
+                if (patientList != null)
                 {
-                    return new Response<List<Patient>>(true, "Success: Acquired data.", patientList);
+                    if (patientList.Count > 0)
+                    {
+                        return new Response<List<Patient>>(true, "Success: Acquired data.", patientList);
+                    }
                 }
                 return new Response<List<Patient>>(false, "Failure: Data does not exist.", null);
             }
@@ -39,7 +42,7 @@ namespace dotnet.Controllers
             }
         }
 
-        [HttpGet("get/{id}")]
+        [HttpGet("get/id/{id}")]
         public async Task<Response<Patient>> GetItemById(int id)
         {
             try
@@ -54,6 +57,52 @@ namespace dotnet.Controllers
             catch (Exception exception)
             {
                 return new Response<Patient>(false, $"Server Failure: Unable to get object. Because {exception.Message}", null);
+            }
+        }
+
+        [HttpGet("get/category/{category}")]
+        public async Task<Response<List<Patient>>> GetItemByCategory(String category)
+        {
+            try
+            {
+                List<Patient> patientList = await _db.Patients.Where(x => x.Category == category).Include(x => x.User).ToListAsync();
+                if (patientList != null)
+                {
+                    if (patientList.Count > 0)
+                    {
+                        return new Response<List<Patient>>(true, "Success: Acquired data.", patientList);
+                    }
+                }
+                return new Response<List<Patient>>(false, "Failure: Data does not exist.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Patient>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
+            }
+        }
+
+        [HttpGet("search/{search}")]
+        public async Task<Response<List<Patient>>> SearchItems(String search)
+        {
+            try
+            {
+                if (String.IsNullOrEmpty(search))
+                {
+                    return new Response<List<Patient>>(false, "Failure: Enter a valid search string.", null);
+                }
+                List<Patient> patientList = await _db.Patients.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || x.Category.ToString().Contains(search) || x.BirthPlace.Contains(search) || x.Type.Contains(search) || x.ExternalId.Contains(search) || x.BloodGroup.Contains(search) || x.ClinicSite.Contains(search) || x.ReferredBy.Contains(search) || x.Guardian.Contains(search) || x.PaymentProfile.Contains(search) || x.Description.Contains(search) || x.User.FirstName.Contains(search) || x.User.LastName.Contains(search) || x.User.FatherHusbandName.Contains(search) || x.User.Gender.Contains(search) || x.User.Cnic.Contains(search) || x.User.Contact.Contains(search) || x.User.EmergencyContact.Contains(search) || x.User.Email.Contains(search) || x.User.Address.Contains(search) || x.User.Experience.Contains(search) || x.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
+                if (patientList != null)
+                {
+                    if (patientList.Count > 0)
+                    {
+                        return new Response<List<Patient>>(true, "Success: Acquired data.", patientList);
+                    }
+                }
+                return new Response<List<Patient>>(false, "Failure: Database is empty.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Patient>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using dotnet.Models;
@@ -26,9 +27,12 @@ namespace dotnet.Controllers
             try
             {
                 List<Doctor> doctorList = await _db.Doctors.Include(x => x.User).Include(x => x.User.Qualifications).ToListAsync();
-                if (doctorList != null && doctorList.Count > 0)
+                if (doctorList != null)
                 {
-                    return new Response<List<Doctor>>(true, "Success: Acquired data.", doctorList);
+                    if (doctorList.Count > 0)
+                    {
+                        return new Response<List<Doctor>>(true, "Success: Acquired data.", doctorList);
+                    }
                 }
                 return new Response<List<Doctor>>(false, "Failure: Database is empty.", null);
 
@@ -39,7 +43,7 @@ namespace dotnet.Controllers
             }
         }
 
-        [HttpGet("get/{id}")]
+        [HttpGet("get/id/{id}")]
         public async Task<Response<Doctor>> GetItemById(int id)
         {
             try
@@ -54,6 +58,31 @@ namespace dotnet.Controllers
             catch (Exception exception)
             {
                 return new Response<Doctor>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
+            }
+        }
+
+        [HttpGet("search/{search}")]
+        public async Task<Response<List<Doctor>>> SearchItems(String search)
+        {
+            try
+            {
+                if (String.IsNullOrEmpty(search))
+                {
+                    return new Response<List<Doctor>>(false, "Failure: Enter a valid search string.", null);
+                }
+                List<Doctor> doctorList = await _db.Doctors.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || x.ConsultationFee.ToString().Contains(search) || x.EmergencyConsultationFee.ToString().Contains(search) || x.ShareInFee.ToString().Contains(search) || x.SpecialityType.Contains(search) || x.User.FirstName.Contains(search) || x.User.LastName.Contains(search) || x.User.FatherHusbandName.Contains(search) || x.User.Gender.Contains(search) || x.User.Cnic.Contains(search) || x.User.Contact.Contains(search) || x.User.EmergencyContact.Contains(search) || x.User.Email.Contains(search) || x.User.Address.Contains(search) || x.User.Experience.Contains(search) || x.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
+                if (doctorList != null)
+                {
+                    if (doctorList.Count > 0)
+                    {
+                        return new Response<List<Doctor>>(true, "Success: Acquired data.", doctorList);
+                    }
+                }
+                return new Response<List<Doctor>>(false, "Failure: Database is empty.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Doctor>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
         }
 

@@ -13,13 +13,13 @@ namespace dotnet.Models
 
         public DateTime Date { get; set; }
         public string CheckupType { get; set; }
-        public double CheckupFee { get; set; }
+        public int CheckupFee { get; set; }
         public string PaymentType { get; set; }
-        public double Disposibles { get; set; }
-        public double GrossAmount { get; set; }
+        public int Disposibles { get; set; }
+        public int GrossAmount { get; set; }
 
         public string Pmid { get; set; }
-        public double Discount { get; set; }
+        public int Discount { get; set; }
         public int TotalAmount { get; set; }
         public int PendingAmount { get; set; }
         public int PaidAmount { get; set; }

@@ -11,7 +11,7 @@ namespace dotnet.Models
         public int InvoiceId { get; set; }
 
         public string Pmid { get; set; }
-        public double Discount { get; set; }
+        public int Discount { get; set; }
         public int TotalAmount { get; set; }
         public int PendingAmount { get; set; }
         public int PaidAmount { get; set; }

@@ -10,6 +10,7 @@ namespace dotnet.Models
         public string Executant { get; set; }
         public int Charges { get; set; }
         public int ExecutantShare { get; set; }
+        public bool Consent { get; set; }
     }
     public class Procedures
     {

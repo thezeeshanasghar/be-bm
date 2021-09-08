@@ -26,10 +26,13 @@ namespace dotnet.Controllers
         {
             try
             {
-                List<Nurse> doctorList = await _db.Nurses.Include(x => x.User).ToListAsync();
-                if (doctorList != null && doctorList.Count > 0)
+                List<Nurse> nurseList = await _db.Nurses.Include(x => x.User).ToListAsync();
+                if (nurseList != null)
                 {
-                    return new Response<List<Nurse>>(true, "Success: Acquired data.", doctorList);
+                    if (nurseList.Count > 0)
+                    {
+                        return new Response<List<Nurse>>(true, "Success: Acquired data.", nurseList);
+                    }
                 }
                 return new Response<List<Nurse>>(false, "Failure: Data does not exist.", null);
             }
@@ -39,7 +42,7 @@ namespace dotnet.Controllers
             }
         }
 
-        [HttpGet("get/{id}")]
+        [HttpGet("get/id/{id}")]
         public async Task<Response<Nurse>> GetItemById(int id)
         {
             try
@@ -54,6 +57,31 @@ namespace dotnet.Controllers
             catch (Exception exception)
             {
                 return new Response<Nurse>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
+            }
+        }
+
+        [HttpGet("search/{search}")]
+        public async Task<Response<List<Nurse>>> SearchItems(String search)
+        {
+            try
+            {
+                if (String.IsNullOrEmpty(search))
+                {
+                    return new Response<List<Nurse>>(false, "Failure: Enter a valid search string.", null);
+                }
+                List<Nurse> nurseList = await _db.Nurses.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || x.DutyDuration.ToString().Contains(search) || x.SharePercentage.ToString().Contains(search) || x.Salary.ToString().Contains(search) || x.User.FirstName.Contains(search) || x.User.LastName.Contains(search) || x.User.FatherHusbandName.Contains(search) || x.User.Gender.Contains(search) || x.User.Cnic.Contains(search) || x.User.Contact.Contains(search) || x.User.EmergencyContact.Contains(search) || x.User.Email.Contains(search) || x.User.Address.Contains(search) || x.User.Experience.Contains(search) || x.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
+                if (nurseList != null)
+                {
+                    if (nurseList.Count > 0)
+                    {
+                        return new Response<List<Nurse>>(true, "Success: Acquired data.", nurseList);
+                    }
+                }
+                return new Response<List<Nurse>>(false, "Failure: Database is empty.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Nurse>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
             }
         }
 
@@ -212,7 +240,7 @@ namespace dotnet.Controllers
                 }
                 _db.Users.Remove(user);
                 await _db.SaveChangesAsync();
-                
+
                 return new Response<Nurse>(true, "Success: Deleted data.", nurse);
             }
             catch (Exception exception)

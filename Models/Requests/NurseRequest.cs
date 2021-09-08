@@ -27,7 +27,7 @@ namespace dotnet.Models
 
         public int DutyDuration { get; set; }
         public int SharePercentage { get; set; }
-        public double Salary { get; set; }
+        public int Salary { get; set; }
 
         public List<QualificationRequest> QualificationList { get; set; }
     }

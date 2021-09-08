@@ -11,8 +11,8 @@ namespace dotnet.Models
         public int Id { get; set; }
         public int ReceiptId { get; set; }
 
-        public double RefundAmount { get; set; }
-        public double FinalAmount { get; set; }
+        public int RefundAmount { get; set; }
+        public int FinalAmount { get; set; }
 
         public virtual Receipt Receipt { get; set; }
     }
