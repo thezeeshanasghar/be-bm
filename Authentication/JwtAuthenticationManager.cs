@@ -54,7 +54,7 @@ namespace dotnet.Authentication
                     JwtToken = token,
                     RefreshToken = refreshToken,
                     CreatedDate = tokenCreatedDate,
-                    ExpiryDate = tokenCreatedDate.AddMinutes(1),
+                    ExpiryDate = tokenCreatedDate.AddMinutes(2),
                     IsSuccess = true,
                     Message = "Success: Token generated.",
                 };
@@ -101,7 +101,7 @@ namespace dotnet.Authentication
                     JwtToken = token,
                     RefreshToken = refreshToken,
                     CreatedDate = tokenCreatedDate,
-                    ExpiryDate = tokenCreatedDate.AddMinutes(1),
+                    ExpiryDate = tokenCreatedDate.AddMinutes(2),
                     IsSuccess = true,
                     Message = "Success: Token generated.",
                 };
@@ -121,7 +121,7 @@ namespace dotnet.Authentication
         {
             Console.WriteLine(expires);
             DateTime samp = expires;
-            Console.WriteLine(samp.AddMinutes(1));
+            Console.WriteLine(samp.AddMinutes(2));
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(tokenKey);
@@ -132,7 +132,7 @@ namespace dotnet.Authentication
                 {
                     new Claim(ClaimTypes.Name, username)
                 }),
-                Expires = expires.AddMinutes(1),
+                Expires = expires.AddMinutes(2),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature),
