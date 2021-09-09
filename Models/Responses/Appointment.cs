@@ -13,6 +13,9 @@ namespace dotnet.Models
         public DateTime Date { get; set; }
         public DateTime ConsultationDate { get; set; }
         public string Type { get; set; }
+        public string PatientCategory { get; set; }
+
+        public virtual Patient Patient { get; set; }
     }
     public class Appointments
     {
