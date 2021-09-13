@@ -11,6 +11,7 @@ namespace dotnet.Models
         public int AppointmentId { get; set; }
         public int DoctorId { get; set; }
         public int PatientId { get; set; }
+        public int ReceptionistId { get; set; }
 
         public DateTime Date { get; set; }
         public string CheckupType { get; set; }

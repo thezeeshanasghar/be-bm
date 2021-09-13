@@ -128,6 +128,8 @@ namespace dotnet.Controllers
 
                 Appointment appointment = new Appointment();
                 appointment.PatientId = patient.Id;
+                appointment.DoctorId = patientRequest.DoctorId;
+                appointment.ReceptionistId = patientRequest.ReceptionistId;
                 appointment.Code = patientRequest.AppointmentCode;
                 appointment.Date = DateTime.UtcNow;
                 appointment.ConsultationDate = patientRequest.ConsultationDate;

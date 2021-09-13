@@ -7,6 +7,18 @@ using dotnet.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
+// Whole
+// Category
+// CategoryAndDoctor
+// CategoryAndDate
+// CategoryAndBooked
+// CategoryAndDoctorAndDate
+// CategoryAndDoctorAndBooked
+// CategoryAndDateAndBooked
+// CategoryAndDoctorAndDateAndBooked
+
+// add receptionist id while creating appointment
+
 namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
@@ -26,7 +38,7 @@ namespace dotnet.Controllers
         {
             try
             {
-                List<Appointment> appointmentList = await _db.Appointments.Include(x => x.Patient).Include(x => x.Patient.User).ToListAsync();
+                List<Appointment> appointmentList = await _db.Appointments.Include(x => x.Patient).Include(x => x.Patient.User).Take(30).OrderBy(x => x.Id).ToListAsync();
                 if (appointmentList != null)
                 {
                     if (appointmentList.Count > 0)
@@ -65,7 +77,8 @@ namespace dotnet.Controllers
         {
             try
             {
-                List<Appointment> appointmentList = await _db.Appointments.Where(x => x.PatientCategory.Equals(category)).Include(x => x.Patient).Include(x => x.Patient.User).ToListAsync();
+                List<Appointment> appointmentList = await _db.Appointments.Where(x => x.PatientCategory.Equals(category)).
+                Include(x => x.Patient).Include(x => x.Patient.User).Take(30).OrderBy(x => x.Id).ToListAsync();
                 if (appointmentList != null)
                 {
                     if (appointmentList.Count > 0)
@@ -90,7 +103,13 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Appointment>>(false, "Failure: Enter a valid search string.", null);
                 }
-                List<Appointment> appointmentList = await _db.Appointments.Where(x => x.Id.ToString().Contains(search) || x.PatientId.ToString().Contains(search) || x.DoctorId.ToString().Contains(search) || x.Code.Contains(search) || x.Date.ToString().Contains(search) || x.ConsultationDate.ToString().Contains(search) || x.Type.Contains(search) || x.PatientCategory.Contains(search) || x.Patient.ClinicSite.Contains(search) || x.Patient.Guardian.Contains(search) || x.Patient.Description.Contains(search) || x.Patient.User.FirstName.Contains(search) || x.Patient.User.LastName.Contains(search) || x.Patient.User.FatherHusbandName.Contains(search) || x.Patient.User.Cnic.Contains(search) || x.Patient.User.Contact.Contains(search) || x.Patient.User.EmergencyContact.Contains(search) || x.Patient.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).Include(x => x.Patient).Include(x => x.Patient.User).ToListAsync();
+                List<Appointment> appointmentList = await _db.Appointments.Where(x => x.Id.ToString().Contains(search) || x.PatientId.ToString().Contains(search) ||
+                x.DoctorId.ToString().Contains(search) || x.Code.Contains(search) ||
+                x.Type.Contains(search) || x.PatientCategory.Contains(search) || x.Patient.ClinicSite.Contains(search) || x.Patient.Guardian.Contains(search) ||
+                x.Patient.Description.Contains(search) || x.Patient.User.FirstName.Contains(search) || x.Patient.User.LastName.Contains(search) ||
+                x.Patient.User.FatherHusbandName.Contains(search) || x.Patient.User.Cnic.Contains(search) || x.Patient.User.Contact.Contains(search) ||
+                x.Patient.User.EmergencyContact.Contains(search) || x.Patient.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).
+                Include(x => x.Patient).Include(x => x.Patient.User).Take(10).OrderBy(x => x.Id).ToListAsync();
                 if (appointmentList != null)
                 {
                     if (appointmentList.Count > 0)
@@ -106,70 +125,241 @@ namespace dotnet.Controllers
             }
         }
 
-        // [HttpPost("insert")]
-        // public async Task<Response<Appointment>> InsertItem(ServiceRequest serviceRequest)
-        // {
-        //     try
-        //     {
-        //         Appointment appointment = new Appointment();
-        //         appointment.Name = serviceRequest.Name;
-        //         appointment.Description = serviceRequest.Description;
-        //         await _db.Appointments.AddAsync(appointment);
-        //         await _db.SaveChangesAsync();
+        [HttpPost("post/search")]
+        public async Task<Response<List<Appointment>>> SearchItemByPost(AppointmentRequest request)
+        {
+            try
+            {
+                List<Appointment> appointmentList;
+                if (request.searchFrom != null)
+                {
+                    if (request.searchFrom.Length > 0)
+                    {
+                        if (request.searchFrom.Equals("Category"))
+                        {
+                            if (request.Category != null)
+                            {
+                                if (request.Category.Length > 0)
+                                {
+                                    appointmentList = await _db.Appointments.Where(x => (x.Id.ToString().Contains(request.Search) || x.PatientId.ToString().Contains(request.Search) ||
+                                    x.DoctorId.ToString().Contains(request.Search) || x.Code.Contains(request.Search) ||
+                                    x.Type.Contains(request.Search) || x.PatientCategory.Contains(request.Search) ||
+                                    x.Patient.ClinicSite.Contains(request.Search) || x.Patient.Guardian.Contains(request.Search) || x.Patient.Description.Contains(request.Search) ||
+                                    x.Patient.User.FirstName.Contains(request.Search) || x.Patient.User.LastName.Contains(request.Search) ||
+                                    x.Patient.User.FatherHusbandName.Contains(request.Search) || x.Patient.User.Cnic.Contains(request.Search) || x.Patient.User.Contact.Contains(request.Search) ||
+                                    x.Patient.User.EmergencyContact.Contains(request.Search) || x.Patient.User.FloorNo.ToString().Contains(request.Search)) && x.PatientCategory.Equals(request.Category)).
+                                    OrderBy(x => x.Id).Take(10).Include(x => x.Patient).Include(x => x.Patient.User).OrderBy(x => x.Id).Take(10).ToListAsync();
+                                    if (appointmentList != null)
+                                    {
+                                        if (appointmentList.Count > 0)
+                                        {
+                                            return new Response<List<Appointment>>(true, "Success: Acquired data.", appointmentList);
+                                        }
+                                    }
+                                    return new Response<List<Appointment>>(false, "Failure: Database is empty.", null);
+                                }
+                            }
+                            return new Response<List<Appointment>>(false, "Failure: Select a valid value of parameter <category> to search.", null);
+                        }
+                        else if (request.searchFrom.Equals("CategoryAndDoctor"))
+                        {
+                            if (request.Category != null && request.Doctor != null)
+                            {
+                                if (request.Category.Length > 0 && request.Doctor.Length > 0)
+                                {
+                                    appointmentList = await _db.Appointments.Where(x => (x.Id.ToString().Contains(request.Search) || x.PatientId.ToString().Contains(request.Search) ||
+                                    x.DoctorId.ToString().Contains(request.Search) || x.Code.Contains(request.Search) ||
+                                    x.Type.Contains(request.Search) || x.PatientCategory.Contains(request.Search) ||
+                                    x.Patient.ClinicSite.Contains(request.Search) || x.Patient.Guardian.Contains(request.Search) || x.Patient.Description.Contains(request.Search) ||
+                                    x.Patient.User.FirstName.Contains(request.Search) || x.Patient.User.LastName.Contains(request.Search) ||
+                                    x.Patient.User.FatherHusbandName.Contains(request.Search) || x.Patient.User.Cnic.Contains(request.Search) || x.Patient.User.Contact.Contains(request.Search) ||
+                                    x.Patient.User.EmergencyContact.Contains(request.Search) || x.Patient.User.FloorNo.ToString().Contains(request.Search)) && x.PatientCategory.Equals(request.Category) &&
+                                    x.DoctorId.ToString().Equals(request.Doctor)).OrderBy(x => x.Id).Take(10).Include(x => x.Patient).Include(x => x.Patient.User).OrderBy(x => x.Id).Take(10).ToListAsync();
+                                    if (appointmentList != null)
+                                    {
+                                        if (appointmentList.Count > 0)
+                                        {
+                                            return new Response<List<Appointment>>(true, "Success: Acquired data.", appointmentList);
+                                        }
+                                    }
+                                    return new Response<List<Appointment>>(false, "Failure: Database is empty.", null);
+                                }
+                            }
+                            return new Response<List<Appointment>>(false, "Failure: Select a valid value of parameter <category> <doctor> to search.", null);
+                        }
+                        else if (request.searchFrom.Equals("CategoryAndDate"))
+                        {
+                            if (request.Category != null && request.Date != null)
+                            {
+                                if (request.Category.Length > 0 && request.Date.ToString().Length > 0)
+                                {
+                                    appointmentList = await _db.Appointments.Where(x => (x.Id.ToString().Contains(request.Search) || x.PatientId.ToString().Contains(request.Search) ||
+                                    x.DoctorId.ToString().Contains(request.Search) || x.Code.Contains(request.Search) ||
+                                     x.Type.Contains(request.Search) || x.PatientCategory.Contains(request.Search) ||
+                                    x.Patient.ClinicSite.Contains(request.Search) || x.Patient.Guardian.Contains(request.Search) || x.Patient.Description.Contains(request.Search) ||
+                                    x.Patient.User.FirstName.Contains(request.Search) || x.Patient.User.LastName.Contains(request.Search) ||
+                                    x.Patient.User.FatherHusbandName.Contains(request.Search) || x.Patient.User.Cnic.Contains(request.Search) || x.Patient.User.Contact.Contains(request.Search) ||
+                                    x.Patient.User.EmergencyContact.Contains(request.Search) || x.Patient.User.FloorNo.ToString().Contains(request.Search)) && x.PatientCategory.Equals(request.Category) &&
+                                    (x.Date >= request.Date && x.Date < request.Date.AddDays(1))).OrderBy(x => x.Id).Take(10).Include(x => x.Patient).Include(x => x.Patient.User).OrderBy(x => x.Id).Take(10).ToListAsync();
+                                    if (appointmentList != null)
+                                    {
+                                        if (appointmentList.Count > 0)
+                                        {
+                                            return new Response<List<Appointment>>(true, "Success: Acquired data.", appointmentList);
+                                        }
+                                    }
+                                    return new Response<List<Appointment>>(false, "Failure: Database is empty.", null);
+                                }
+                            }
+                            return new Response<List<Appointment>>(false, "Failure: Select a valid value of parameter <category> <date> to search.", null);
+                        }
+                        else if (request.searchFrom.Equals("CategoryAndBooked"))
+                        {
+                            if (request.Category != null && request.Booked != null)
+                            {
+                                if (request.Category.Length > 0 && request.Booked.Length > 0)
+                                {
+                                    appointmentList = await _db.Appointments.Where(x => (x.Id.ToString().Contains(request.Search) || x.PatientId.ToString().Contains(request.Search) ||
+                                    x.DoctorId.ToString().Contains(request.Search) || x.Code.Contains(request.Search) ||
+                                     x.Type.Contains(request.Search) || x.PatientCategory.Contains(request.Search) ||
+                                    x.Patient.ClinicSite.Contains(request.Search) || x.Patient.Guardian.Contains(request.Search) || x.Patient.Description.Contains(request.Search) ||
+                                    x.Patient.User.FirstName.Contains(request.Search) || x.Patient.User.LastName.Contains(request.Search) ||
+                                    x.Patient.User.FatherHusbandName.Contains(request.Search) || x.Patient.User.Cnic.Contains(request.Search) || x.Patient.User.Contact.Contains(request.Search) ||
+                                    x.Patient.User.EmergencyContact.Contains(request.Search) || x.Patient.User.FloorNo.ToString().Contains(request.Search)) && x.PatientCategory.Equals(request.Category) &&
+                                    x.ReceptionistId.ToString().Equals(request.Booked)).OrderBy(x => x.Id).Take(10).Include(x => x.Patient).Include(x => x.Patient.User).OrderBy(x => x.Id).Take(10).ToListAsync();
+                                    if (appointmentList != null)
+                                    {
+                                        if (appointmentList.Count > 0)
+                                        {
+                                            return new Response<List<Appointment>>(true, "Success: Acquired data.", appointmentList);
+                                        }
+                                    }
+                                    return new Response<List<Appointment>>(false, "Failure: Database is empty.", null);
+                                }
+                            }
+                            return new Response<List<Appointment>>(false, "Failure: Select a valid value of parameter <category> <booked> to search.", null);
+                        }
+                        else if (request.searchFrom.Equals("CategoryAndDoctorAndDate"))
+                        {
+                            if (request.Category != null && request.Doctor != null && request.Date != null)
+                            {
+                                if (request.Category.Length > 0 && request.Doctor.Length > 0 && request.Date.ToString().Length > 0)
+                                {
+                                    appointmentList = await _db.Appointments.Where(x => (x.Id.ToString().Contains(request.Search) || x.PatientId.ToString().Contains(request.Search) ||
+                                    x.DoctorId.ToString().Contains(request.Search) || x.Code.Contains(request.Search) ||
+                                     x.Type.Contains(request.Search) || x.PatientCategory.Contains(request.Search) ||
+                                    x.Patient.ClinicSite.Contains(request.Search) || x.Patient.Guardian.Contains(request.Search) || x.Patient.Description.Contains(request.Search) ||
+                                    x.Patient.User.FirstName.Contains(request.Search) || x.Patient.User.LastName.Contains(request.Search) ||
+                                    x.Patient.User.FatherHusbandName.Contains(request.Search) || x.Patient.User.Cnic.Contains(request.Search) || x.Patient.User.Contact.Contains(request.Search) ||
+                                    x.Patient.User.EmergencyContact.Contains(request.Search) || x.Patient.User.FloorNo.ToString().Contains(request.Search)) && x.PatientCategory.Equals(request.Category) &&
+                                    x.DoctorId.ToString().Equals(request.Doctor) && (x.Date >= request.Date && x.Date < request.Date.AddDays(1))).
+                                    OrderBy(x => x.Id).Take(10).Include(x => x.Patient).Include(x => x.Patient.User).OrderBy(x => x.Id).Take(10).ToListAsync();
+                                    if (appointmentList != null)
+                                    {
+                                        if (appointmentList.Count > 0)
+                                        {
+                                            return new Response<List<Appointment>>(true, "Success: Acquired data.", appointmentList);
+                                        }
+                                    }
+                                    return new Response<List<Appointment>>(false, "Failure: Database is empty.", null);
+                                }
+                            }
+                            return new Response<List<Appointment>>(false, "Failure: Select a valid value of parameter <category> <doctor> <date> to search.", null);
+                        }
+                        else if (request.searchFrom.Equals("CategoryAndDoctorAndBooked"))
+                        {
+                            if (request.Category != null && request.Doctor != null && request.Booked != null)
+                            {
+                                if (request.Category.Length > 0 && request.Doctor.Length > 0 && request.Booked.Length > 0)
+                                {
+                                    appointmentList = await _db.Appointments.Where(x => (x.Id.ToString().Contains(request.Search) || x.PatientId.ToString().Contains(request.Search) ||
+                                    x.DoctorId.ToString().Contains(request.Search) || x.Code.Contains(request.Search) ||
+                                     x.Type.Contains(request.Search) || x.PatientCategory.Contains(request.Search) ||
+                                    x.Patient.ClinicSite.Contains(request.Search) || x.Patient.Guardian.Contains(request.Search) || x.Patient.Description.Contains(request.Search) ||
+                                    x.Patient.User.FirstName.Contains(request.Search) || x.Patient.User.LastName.Contains(request.Search) ||
+                                    x.Patient.User.FatherHusbandName.Contains(request.Search) || x.Patient.User.Cnic.Contains(request.Search) || x.Patient.User.Contact.Contains(request.Search) ||
+                                    x.Patient.User.EmergencyContact.Contains(request.Search) || x.Patient.User.FloorNo.ToString().Contains(request.Search)) && x.PatientCategory.Equals(request.Category) &&
+                                    x.DoctorId.ToString().Equals(request.Doctor) && x.ReceptionistId.ToString().Equals(request.Booked)).
+                                    OrderBy(x => x.Id).Take(10).Include(x => x.Patient).Include(x => x.Patient.User).OrderBy(x => x.Id).Take(10).ToListAsync();
+                                    if (appointmentList != null)
+                                    {
+                                        if (appointmentList.Count > 0)
+                                        {
+                                            return new Response<List<Appointment>>(true, "Success: Acquired data.", appointmentList);
+                                        }
+                                    }
+                                    return new Response<List<Appointment>>(false, "Failure: Database is empty.", null);
+                                }
+                            }
+                            return new Response<List<Appointment>>(false, "Failure: Select a valid value of parameter <category> <doctor> <booked> to search.", null);
+                        }
+                        else if (request.searchFrom.Equals("CategoryAndDateAndBooked"))
+                        {
+                            if (request.Category != null && request.Date != null && request.Booked != null)
+                            {
+                                if (request.Category.Length > 0 && request.Date.ToString().Length > 0 && request.Booked.Length > 0)
+                                {
+                                    appointmentList = await _db.Appointments.Where(x => (x.Id.ToString().Contains(request.Search) || x.PatientId.ToString().Contains(request.Search) ||
+                                    x.DoctorId.ToString().Contains(request.Search) || x.Code.Contains(request.Search) ||
+                                     x.Type.Contains(request.Search) || x.PatientCategory.Contains(request.Search) ||
+                                    x.Patient.ClinicSite.Contains(request.Search) || x.Patient.Guardian.Contains(request.Search) || x.Patient.Description.Contains(request.Search) ||
+                                    x.Patient.User.FirstName.Contains(request.Search) || x.Patient.User.LastName.Contains(request.Search) ||
+                                    x.Patient.User.FatherHusbandName.Contains(request.Search) || x.Patient.User.Cnic.Contains(request.Search) || x.Patient.User.Contact.Contains(request.Search) ||
+                                    x.Patient.User.EmergencyContact.Contains(request.Search) || x.Patient.User.FloorNo.ToString().Contains(request.Search)) && x.PatientCategory.Equals(request.Category) &&
+                                    (x.Date >= request.Date && x.Date < request.Date.AddDays(1)) && x.ReceptionistId.ToString().Equals(request.Booked)).
+                                    OrderBy(x => x.Id).Take(10).Include(x => x.Patient).Include(x => x.Patient.User).OrderBy(x => x.Id).Take(10).ToListAsync();
+                                    if (appointmentList != null)
+                                    {
+                                        if (appointmentList.Count > 0)
+                                        {
+                                            return new Response<List<Appointment>>(true, "Success: Acquired data.", appointmentList);
+                                        }
+                                    }
+                                    return new Response<List<Appointment>>(false, "Failure: Database is empty.", null);
+                                }
+                            }
+                            return new Response<List<Appointment>>(false, "Failure: Select a valid value of parameter <category> to search.", null);
+                        }
+                        else if (request.searchFrom.Equals("CategoryAndDoctorAndDateAndBooked"))
+                        {
+                            if (request.Category != null && request.Doctor != null && request.Date != null && request.Booked != null)
+                            {
+                                if (request.Category.Length > 0 && request.Doctor.Length > 0 && request.Date.ToString().Length > 0 && request.Booked.Length > 0)
+                                {
+                                    appointmentList = await _db.Appointments.Where(x => (x.Id.ToString().Contains(request.Search) || x.PatientId.ToString().Contains(request.Search) ||
+                                    x.DoctorId.ToString().Contains(request.Search) || x.Code.Contains(request.Search) ||
+                                     x.Type.Contains(request.Search) || x.PatientCategory.Contains(request.Search) ||
+                                    x.Patient.ClinicSite.Contains(request.Search) || x.Patient.Guardian.Contains(request.Search) || x.Patient.Description.Contains(request.Search) ||
+                                    x.Patient.User.FirstName.Contains(request.Search) || x.Patient.User.LastName.Contains(request.Search) ||
+                                    x.Patient.User.FatherHusbandName.Contains(request.Search) || x.Patient.User.Cnic.Contains(request.Search) || x.Patient.User.Contact.Contains(request.Search) ||
+                                    x.Patient.User.EmergencyContact.Contains(request.Search) || x.Patient.User.FloorNo.ToString().Contains(request.Search)) && x.PatientCategory.Equals(request.Category) &&
+                                    x.DoctorId.ToString().Equals(request.Doctor) && (x.Date >= request.Date && x.Date < request.Date.AddDays(1)) && x.ReceptionistId.ToString().Equals(request.Booked)).
+                                    OrderBy(x => x.Id).Take(10).Include(x => x.Patient).Include(x => x.Patient.User).OrderBy(x => x.Id).Take(10).ToListAsync();
+                                    if (appointmentList != null)
+                                    {
+                                        if (appointmentList.Count > 0)
+                                        {
+                                            return new Response<List<Appointment>>(true, "Success: Acquired data.", appointmentList);
+                                        }
+                                    }
+                                    return new Response<List<Appointment>>(false, "Failure: Database is empty.", null);
+                                }
+                            }
+                            return new Response<List<Appointment>>(false, "Failure: Select a valid value of parameter <category> to search.", null);
+                        }
+                        else
+                        {
+                            return new Response<List<Appointment>>(false, "Failure: Select a valid <searchFrom> from the options: a) Whole b) Category c) CategoryAndDoctor d) CategoryAndDate e) CategoryAndBooked f) CategoryAndDoctorAndDate g) CategoryAndDoctorAndBooked h) CategoryAndDateAndBooked i) CategoryAndDoctorAndDateAndBooked ", null);
 
-        //         return new Response<Appointment>(true, "Success: Inserted data.", appointment);
-        //     }
-        //     catch (Exception exception)
-        //     {
-        //         return new Response<Appointment>(false, $"Server Failure: Unable to insert data. Because {exception.Message}", null);
-        //     }
-        // }
-
-        // [HttpPut("update/{id}")]
-        // public async Task<Response<Appointment>> UpdateItem(int id, ServiceRequest serviceRequest)
-        // {
-        //     try
-        //     {
-        //         if (id != serviceRequest.Id)
-        //         {
-        //             return new Response<Appointment>(false, "Failure: Id sent in body does not match object Id", null);
-        //         }
-        //         Appointment appointment = await _db.Appointments.FirstOrDefaultAsync(x => x.Id == id);
-        //         if (appointment == null)
-        //         {
-        //             return new Response<Appointment>(false, "Failure: Data doesn't exist.", null);
-        //         }
-        //         appointment.Name = serviceRequest.Name;
-        //         appointment.Description = serviceRequest.Description;
-        //         await _db.SaveChangesAsync();
-
-        //         return new Response<Appointment>(true, "Success: Updated data.", appointment);
-        //     }
-        //     catch (Exception exception)
-        //     {
-        //         return new Response<Appointment>(false, $"Server Failure: Unable to update data. Because {exception.Message}", null);
-        //     }
-        // }
-
-        // [HttpDelete("delete/{id}")]
-        // public async Task<Response<Appointment>> DeleteItemById(int id)
-        // {
-        //     try
-        //     {
-        //         Appointment appointment = await _db.Appointments.FindAsync(id);
-        //         if (appointment == null)
-        //         {
-        //             return new Response<Appointment>(false, "Failure: Object doesn't exist.", null);
-        //         }
-        //         _db.Appointments.Remove(appointment);
-        //         await _db.SaveChangesAsync();
-
-        //         return new Response<Appointment>(true, "Success: Deleted data.", appointment);
-        //     }
-        //     catch (Exception exception)
-        //     {
-        //         return new Response<Appointment>(false, $"Server Failure: Unable to delete data. Because {exception.Message}", null);
-        //     }
-        // }
+                        }
+                    }
+                }
+                return new Response<List<Appointment>>(false, "Failure: Select a valid <searchFrom> from the options: a) Whole b) Category c) CategoryAndDoctor d) CategoryAndDate e) CategoryAndBooked f) CategoryAndDoctorAndDate g) CategoryAndDoctorAndBooked h) CategoryAndDateAndBooked i) CategoryAndDoctorAndDateAndBooked ", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Appointment>>(false, $"Server Failure: Unable to acquire data. Because {exception.Message}", null);
+            }
+        }
     }
 }

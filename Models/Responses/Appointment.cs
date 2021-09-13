@@ -8,6 +8,7 @@ namespace dotnet.Models
         public int Id { get; set; }
         public int PatientId { get; set; }
         public int DoctorId { get; set; }
+        public int ReceptionistId { get; set; }
 
         public string Code { get; set; }
         public DateTime Date { get; set; }
