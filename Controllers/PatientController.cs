@@ -69,7 +69,15 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Patient>>(false, "Failure: Enter a valid search string.", null);
                 }
-                List<Patient> patientList = await _db.Patients.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || x.BirthPlace.Contains(search) || x.Type.Contains(search) || x.ExternalId.Contains(search) || x.BloodGroup.Contains(search) || x.ClinicSite.Contains(search) || x.ReferredBy.Contains(search) || x.Guardian.Contains(search) || x.PaymentProfile.Contains(search) || x.Description.Contains(search) || x.User.FirstName.Contains(search) || x.User.LastName.Contains(search) || x.User.FatherHusbandName.Contains(search) || x.User.Gender.Contains(search) || x.User.Cnic.Contains(search) || x.User.Contact.Contains(search) || x.User.EmergencyContact.Contains(search) || x.User.Email.Contains(search) || x.User.Address.Contains(search) || x.User.Experience.Contains(search) || x.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
+                List<Patient> patientList = await _db.Patients.Where(x => x.Id.ToString().Contains(search) || 
+                x.UserId.ToString().Contains(search) || x.BirthPlace.Contains(search) || x.Type.Contains(search) ||
+                x.ExternalId.Contains(search) || x.BloodGroup.Contains(search) || x.ClinicSite.Contains(search) || 
+                x.ReferredBy.Contains(search) || x.Guardian.Contains(search) || x.PaymentProfile.Contains(search) || 
+                x.Description.Contains(search) || x.User.FirstName.Contains(search) || x.User.LastName.Contains(search) ||
+                x.User.FatherHusbandName.Contains(search) || x.User.Gender.Contains(search) || x.User.Cnic.Contains(search) || 
+                x.User.Contact.Contains(search) || x.User.EmergencyContact.Contains(search) || x.User.Email.Contains(search) || 
+                x.User.Address.Contains(search) || x.User.Experience.Contains(search) || x.User.FloorNo.ToString().Contains(search)).
+                OrderBy(x => x.Id).Take(10).Include(x => x.User).ToListAsync();
                 if (patientList != null)
                 {
                     if (patientList.Count > 0)

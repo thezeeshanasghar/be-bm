@@ -11,7 +11,7 @@ namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class DoctorController : ControllerBase
     {
         private readonly Context _db;
@@ -70,7 +70,12 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Doctor>>(false, "Failure: Enter a valid search string.", null);
                 }
-                List<Doctor> doctorList = await _db.Doctors.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || x.ConsultationFee.ToString().Contains(search) || x.EmergencyConsultationFee.ToString().Contains(search) || x.ShareInFee.ToString().Contains(search) || x.SpecialityType.Contains(search) || x.User.FirstName.Contains(search) || x.User.LastName.Contains(search) || x.User.FatherHusbandName.Contains(search) || x.User.Gender.Contains(search) || x.User.Cnic.Contains(search) || x.User.Contact.Contains(search) || x.User.EmergencyContact.Contains(search) || x.User.Email.Contains(search) || x.User.Address.Contains(search) || x.User.Experience.Contains(search) || x.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
+                List<Doctor> doctorList = await _db.Doctors.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || 
+                x.ConsultationFee.ToString().Contains(search) || x.EmergencyConsultationFee.ToString().Contains(search) || x.ShareInFee.ToString().Contains(search) || 
+                x.SpecialityType.Contains(search) || x.User.FirstName.Contains(search) || x.User.LastName.Contains(search) || x.User.FatherHusbandName.Contains(search) || 
+                x.User.Gender.Contains(search) || x.User.Cnic.Contains(search) || x.User.Contact.Contains(search) || x.User.EmergencyContact.Contains(search) || 
+                x.User.Email.Contains(search) || x.User.Address.Contains(search) || x.User.Experience.Contains(search) || 
+                x.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).Include(x => x.User).ToListAsync();
                 if (doctorList != null)
                 {
                     if (doctorList.Count > 0)

@@ -11,7 +11,7 @@ namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class ReceptionistController : ControllerBase
     {
         private readonly Context _db;
@@ -69,7 +69,12 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Receptionist>>(false, "Failure: Enter a valid search string.", null);
                 }
-                List<Receptionist> receptionistList = await _db.Receptionists.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || x.JobType.Contains(search) || x.ShiftTime.Contains(search) || x.User.MaritalStatus.Contains(search) || x.User.Religion.Contains(search) || x.User.FirstName.Contains(search) || x.User.LastName.Contains(search) || x.User.FatherHusbandName.Contains(search) || x.User.Gender.Contains(search) || x.User.Cnic.Contains(search) || x.User.Contact.Contains(search) || x.User.EmergencyContact.Contains(search) || x.User.Email.Contains(search) || x.User.Address.Contains(search) || x.User.Experience.Contains(search) || x.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).Include(x => x.User).ToListAsync();
+                List<Receptionist> receptionistList = await _db.Receptionists.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || 
+                x.JobType.Contains(search) || x.ShiftTime.Contains(search) || x.User.MaritalStatus.Contains(search) || x.User.Religion.Contains(search) || 
+                x.User.FirstName.Contains(search) || x.User.LastName.Contains(search) || x.User.FatherHusbandName.Contains(search) || 
+                x.User.Gender.Contains(search) || x.User.Cnic.Contains(search) || x.User.Contact.Contains(search) || x.User.EmergencyContact.Contains(search) || 
+                x.User.Email.Contains(search) || x.User.Address.Contains(search) || x.User.Experience.Contains(search) || 
+                x.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).Include(x => x.User).ToListAsync();
                 if (receptionistList != null)
                 {
                     if (receptionistList.Count > 0)

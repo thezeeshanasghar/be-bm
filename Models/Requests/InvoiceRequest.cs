@@ -6,24 +6,30 @@ namespace dotnet.Models
     public class InvoiceRequest
     {
         public int Id { get; set; }
-        public int AppointmentId { get; set; }
         public int DoctorId { get; set; }
         public int PatientId { get; set; }
         public int ReceptionistId { get; set; }
+        public int AppointmentId { get; set; }
 
-        public DateTime Date { get; set; }
-        public string CheckupType { get; set; }
-        public int CheckupFee { get; set; }
-        public string PaymentType { get; set; }
-        public int Disposibles { get; set; }
-        public int GrossAmount { get; set; }
+        public DateTime InvoiceDate { get; set; }
+        public string InvoiceCheckupType { get; set; }
+        public int InvoiceCheckupFee { get; set; }
+        public string InvoicePaymentType { get; set; }
+        public int InvoiceDisposibles { get; set; }
+        public int InvoiceGrossAmount { get; set; }
 
-        public string Pmid { get; set; }
-        public int Discount { get; set; }
-        public int TotalAmount { get; set; }
-        public int PendingAmount { get; set; }
-        public int PaidAmount { get; set; }
+        public string ReceiptPmid { get; set; }
+        public int ReceiptDiscount { get; set; }
+        public int ReceiptTotalAmount { get; set; }
+        public int ReceiptPendingAmount { get; set; }
+        public int ReceiptPaidAmount { get; set; }
 
-        public virtual List<InvoiceProcedureRequest> procedureList { get; set; }
+        public string AppointmentCode { get; set; }
+        public DateTime AppointmentDate { get; set; }
+        public DateTime AppointmentConsultationDate { get; set; }
+        public String AppointmentType { get; set; }
+        public String AppointmentPatientCategory { get; set; }
+
+        public List<InvoiceProcedureRequest> ProcedureList { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class InvoiceController : ControllerBase
     {
         private readonly Context _db;
@@ -69,7 +69,7 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Invoice>>(false, "Failure: Enter a valid search string.", null);
                 }
-                List<Invoice> invoiceList = await _db.Invoices.Where(x => x.Id.ToString().Contains(search) || x.AppointmentId.ToString().Contains(search) || x.DoctorId.ToString().Contains(search) || x.PatientId.ToString().Contains(search)|| x.Date.ToString().Contains(search)|| x.CheckupType.Contains(search)|| x.CheckupFee.ToString().Contains(search)|| x.PaymentType.Contains(search)|| x.Disposibles.ToString().Contains(search)|| x.GrossAmount.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
+                List<Invoice> invoiceList = await _db.Invoices.Where(x => x.Id.ToString().Contains(search) || x.AppointmentId.ToString().Contains(search) || x.DoctorId.ToString().Contains(search) || x.PatientId.ToString().Contains(search) || x.Date.ToString().Contains(search) || x.CheckupType.Contains(search) || x.CheckupFee.ToString().Contains(search) || x.PaymentType.Contains(search) || x.Disposibles.ToString().Contains(search) || x.GrossAmount.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
                 if (invoiceList != null)
                 {
                     if (invoiceList.Count > 0)
@@ -90,53 +90,84 @@ namespace dotnet.Controllers
         {
             using var transaction = _db.Database.BeginTransaction();
             int appointmentId = invoiceRequest.AppointmentId;
+            DateTime appointmentDate = invoiceRequest.AppointmentDate;
             try
             {
                 Appointment appointment = await _db.Appointments.FirstOrDefaultAsync(x => x.Id == appointmentId);
-                if (appointment == null || appointment.Date < DateTime.UtcNow.Date)
+                if (appointment == null)
                 {
                     Appointment newAppointment = new Appointment();
                     newAppointment.PatientId = invoiceRequest.PatientId;
                     newAppointment.DoctorId = invoiceRequest.DoctorId;
+                    newAppointment.ReceptionistId = invoiceRequest.ReceptionistId;
+                    newAppointment.Code = invoiceRequest.AppointmentCode;
                     newAppointment.Date = DateTime.UtcNow.Date;
-                    newAppointment.ConsultationDate = DateTime.UtcNow;
-                    newAppointment.Type = "Walk In";
+                    newAppointment.ConsultationDate = DateTime.UtcNow.Date;
+                    newAppointment.Type = invoiceRequest.AppointmentType;
+                    newAppointment.PatientCategory = invoiceRequest.AppointmentPatientCategory;
                     await _db.Appointments.AddAsync(newAppointment);
                     await _db.SaveChangesAsync();
+
                     appointmentId = newAppointment.Id;
+                    appointmentDate = newAppointment.Date;
+                }
+                else if (appointment.Date.Date != DateTime.UtcNow.Date)
+                {
+                    Appointment newAppointment = new Appointment();
+                    newAppointment.PatientId = invoiceRequest.PatientId;
+                    newAppointment.DoctorId = invoiceRequest.DoctorId;
+                    newAppointment.ReceptionistId = invoiceRequest.ReceptionistId;
+                    newAppointment.Code = invoiceRequest.AppointmentCode;
+                    newAppointment.Date = DateTime.UtcNow.Date;
+                    newAppointment.ConsultationDate = DateTime.UtcNow.Date;
+                    newAppointment.Type = invoiceRequest.AppointmentType;
+                    newAppointment.PatientCategory = invoiceRequest.AppointmentPatientCategory;
+                    await _db.Appointments.AddAsync(newAppointment);
+                    await _db.SaveChangesAsync();
+
+                    appointmentId = newAppointment.Id;
+                    appointmentDate = newAppointment.Date;
                 }
 
                 Invoice invoice = new Invoice();
                 invoice.AppointmentId = appointmentId;
                 invoice.DoctorId = invoiceRequest.DoctorId;
                 invoice.PatientId = invoiceRequest.PatientId;
-                invoice.Date = invoiceRequest.Date;
-                invoice.CheckupType = invoiceRequest.CheckupType;
-                invoice.CheckupFee = invoiceRequest.CheckupFee;
-                invoice.PaymentType = invoiceRequest.PaymentType;
-                invoice.Disposibles = invoiceRequest.Disposibles;
-                invoice.Disposibles = invoiceRequest.GrossAmount;
+                invoice.ReceptionistId = invoiceRequest.ReceptionistId;
+                invoice.Date = appointmentDate;
+                invoice.CheckupType = invoiceRequest.InvoiceCheckupType;
+                invoice.CheckupFee = invoiceRequest.InvoiceCheckupFee;
+                invoice.PaymentType = invoiceRequest.InvoicePaymentType;
+                invoice.Disposibles = invoiceRequest.InvoiceDisposibles;
+                invoice.GrossAmount = invoiceRequest.InvoiceGrossAmount;
                 await _db.Invoices.AddAsync(invoice);
                 await _db.SaveChangesAsync();
 
-                foreach (InvoiceProcedureRequest irProcedure in invoiceRequest.procedureList)
+                if (invoiceRequest.ProcedureList != null)
                 {
-                    InvoiceProcedures invoiceProcedures = new InvoiceProcedures();
-                    invoiceProcedures.ProcedureId = irProcedure.InvoiceId;
-                    invoiceProcedures.InvoiceId = invoice.Id;
-                    await _db.InvoiceProcedures.AddAsync(invoiceProcedures);
-                    await _db.SaveChangesAsync();
+                    if (invoiceRequest.ProcedureList.Count > 0)
+                    {
+                        foreach (InvoiceProcedureRequest irProcedure in invoiceRequest.ProcedureList)
+                        {
+                            InvoiceProcedures invoiceProcedures = new InvoiceProcedures();
+                            invoiceProcedures.ProcedureId = irProcedure.ProcedureId;
+                            invoiceProcedures.InvoiceId = invoice.Id;
+                            await _db.InvoiceProcedures.AddAsync(invoiceProcedures);
+                            await _db.SaveChangesAsync();
+                        }
+                    }
                 }
 
                 Receipt receipt = new Receipt();
                 receipt.PatientId = invoiceRequest.PatientId;
                 receipt.ReceiptionistId = invoiceRequest.ReceptionistId;
                 receipt.DoctorId = invoiceRequest.DoctorId;
-                receipt.Pmid = invoiceRequest.Pmid;
-                receipt.Discount = invoiceRequest.Discount;
-                receipt.TotalAmount = invoiceRequest.TotalAmount;
-                receipt.PendingAmount = invoiceRequest.PendingAmount;
-                receipt.PaidAmount = invoiceRequest.PaidAmount;
+                receipt.InvoiceId = invoice.Id;
+                receipt.Pmid = invoiceRequest.ReceiptPmid;
+                receipt.Discount = invoiceRequest.ReceiptDiscount;
+                receipt.TotalAmount = invoiceRequest.ReceiptTotalAmount;
+                receipt.PendingAmount = invoiceRequest.ReceiptPendingAmount;
+                receipt.PaidAmount = invoiceRequest.ReceiptPaidAmount;
                 await _db.Receipts.AddAsync(receipt);
                 await _db.SaveChangesAsync();
 
@@ -149,26 +180,5 @@ namespace dotnet.Controllers
                 return new Response<Invoice>(false, $"Server Failure: Unable to insert object. Because {exception.Message}", null);
             }
         }
-
-        // [HttpDelete("delete/{id}")]
-        // public async Task<Response<Invoice>> DeleteItemById(int id)
-        // {
-        //     try
-        //     {
-        //         User user = await _db.Users.FindAsync(id);
-        //         if (user == null)
-        //         {
-        //             return new Response<Invoice>(false, "Failure: Object doesnot exist.", null);
-        //         }
-        //         _db.Users.Remove(user);
-        //         await _db.SaveChangesAsync();
-        //         return new Response<Invoice>(true, "Success: Object deleted.", null);
-        //     }
-        //     catch (Exception exception)
-        //     {
-        //         return new Response<Invoice>(false, $"Server Failure: Unable to delete object. Because {exception.Message}", null);
-        //     }
-        // }
-
     }
 }

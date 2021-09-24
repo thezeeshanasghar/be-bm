@@ -4,6 +4,5 @@ namespace dotnet.Models
     {
         public int Id { get; set; }
         public int ProcedureId { get; set; }
-        public int InvoiceId { get; set; }
     }
 }

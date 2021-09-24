@@ -69,7 +69,12 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Nurse>>(false, "Failure: Enter a valid search string.", null);
                 }
-                List<Nurse> nurseList = await _db.Nurses.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || x.DutyDuration.ToString().Contains(search) || x.SharePercentage.ToString().Contains(search) || x.Salary.ToString().Contains(search) || x.User.FirstName.Contains(search) || x.User.LastName.Contains(search) || x.User.FatherHusbandName.Contains(search) || x.User.Gender.Contains(search) || x.User.Cnic.Contains(search) || x.User.Contact.Contains(search) || x.User.EmergencyContact.Contains(search) || x.User.Email.Contains(search) || x.User.Address.Contains(search) || x.User.Experience.Contains(search) || x.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
+                List<Nurse> nurseList = await _db.Nurses.Where(x => x.Id.ToString().Contains(search) || x.UserId.ToString().Contains(search) || 
+                x.DutyDuration.ToString().Contains(search) || x.SharePercentage.ToString().Contains(search) || x.Salary.ToString().Contains(search) || 
+                x.User.FirstName.Contains(search) || x.User.LastName.Contains(search) || x.User.FatherHusbandName.Contains(search) || x.User.Gender.Contains(search) || 
+                x.User.Cnic.Contains(search) || x.User.Contact.Contains(search) || x.User.EmergencyContact.Contains(search) || x.User.Email.Contains(search) || 
+                x.User.Address.Contains(search) || x.User.Experience.Contains(search) || 
+                x.User.FloorNo.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).Include(x => x.User).ToListAsync();
                 if (nurseList != null)
                 {
                     if (nurseList.Count > 0)

@@ -1,7 +1,6 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System;
 
 namespace dotnet.Models
 {
@@ -26,6 +25,9 @@ namespace dotnet.Models
         public DbSet<InvoiceProcedures> InvoiceProcedures { get; set; }
         public DbSet<Login> Login { get; set; }
 
-
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Procedure>().Property(r => r.Consent).HasConversion(new BoolToZeroOneConverter<Int16>());
+        }
     }
 }

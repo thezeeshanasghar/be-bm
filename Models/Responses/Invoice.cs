@@ -22,6 +22,7 @@ namespace dotnet.Models
 
         public virtual Appointment Appointment { get; set; }
         public virtual Doctor Doctor { get; set; }
+        public virtual Receipt Receipt { get; set; }
     }
     public class Invoices
     {
