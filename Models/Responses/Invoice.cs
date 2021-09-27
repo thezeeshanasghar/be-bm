@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace dotnet.Models
 {
@@ -23,6 +21,8 @@ namespace dotnet.Models
         public virtual Appointment Appointment { get; set; }
         public virtual Doctor Doctor { get; set; }
         public virtual Receipt Receipt { get; set; }
+        public virtual Patient Patient { get; set; }
+
     }
     public class Invoices
     {

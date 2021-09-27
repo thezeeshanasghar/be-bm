@@ -11,7 +11,7 @@ namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    // [Authorize]
+    [Authorize]
     public class InvoiceController : ControllerBase
     {
         private readonly Context _db;
@@ -85,6 +85,49 @@ namespace dotnet.Controllers
             }
         }
 
+        [HttpPost("post/search")]
+        public async Task<Response<List<Invoice>>> SearchItemsByPost(InvoiceSearchRequest request)
+        {
+            try
+            {
+                if (request.Search.Length < 1)
+                {
+                    List<Invoice> invoiceList = await _db.Invoices.Where(x => (x.Date >= request.FromDate.Date && x.Date < request.ToDate.Date.AddDays(1))).
+                    Include(x => x.Doctor).Include(x => x.Doctor.User).Include(x => x.Patient).Include(x => x.Patient.User).Include(x => x.Receipt).ToListAsync();
+                    if (invoiceList != null)
+                    {
+                        if (invoiceList.Count > 0)
+                        {
+                            return new Response<List<Invoice>>(true, "Success: Acquired data.", invoiceList);
+                        }
+                    }
+                    return new Response<List<Invoice>>(false, "Failure: Database is empty.", null);
+                }
+                else if (request.FromDate != null && request.ToDate != null && request.Search != null)
+                {
+                    if (request.Search.Length > 0)
+                    {
+                        List<Invoice> invoiceList = await _db.Invoices.Where(x => (x.Id.ToString() == request.Search) && (x.Date >= request.FromDate.Date &&
+                        x.Date < request.ToDate.Date.AddDays(1))).Include(x => x.Doctor).Include(x => x.Doctor.User).
+                        Include(x => x.Patient).Include(x => x.Patient.User).Include(x => x.Receipt).ToListAsync();
+                        if (invoiceList != null)
+                        {
+                            if (invoiceList.Count > 0)
+                            {
+                                return new Response<List<Invoice>>(true, "Success: Acquired data.", invoiceList);
+                            }
+                        }
+                        return new Response<List<Invoice>>(false, "Failure: Database is empty.", null);
+                    }
+                }
+                return new Response<List<Invoice>>(false, "Failure: Any of the following is missing. 'Search' 'FromDate' 'ToDate'", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Invoice>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
+            }
+        }
+
         [HttpPost("insert")]
         public async Task<Response<Invoice>> InsertItem(InvoiceRequest invoiceRequest)
         {
@@ -93,9 +136,28 @@ namespace dotnet.Controllers
             DateTime appointmentDate = invoiceRequest.AppointmentDate;
             try
             {
+                Patient patient = await _db.Patients.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == invoiceRequest.PatientId);
+                if (patient == null)
+                {
+                    transaction.Rollback();
+                    return new Response<Invoice>(false, $"Failure: Unable to create invoice. Because patient belonging to id = {invoiceRequest.PatientId} was not found.", null);
+                }
+
+                Doctor doctor = await _db.Doctors.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == invoiceRequest.DoctorId);
+                if (doctor == null)
+                {
+                    transaction.Rollback();
+                    return new Response<Invoice>(false, $"Failure: Unable to create invoice. Because doctor belonging to id = {invoiceRequest.DoctorId} was not found.", null);
+                }
+
                 Appointment appointment = await _db.Appointments.FirstOrDefaultAsync(x => x.Id == appointmentId);
                 if (appointment == null)
                 {
+                    if (invoiceRequest.AppointmentPatientCategory.ToLower() == "online" || invoiceRequest.AppointmentPatientCategory.ToLower() == "admitted")
+                    {
+                        transaction.Rollback();
+                        return new Response<Invoice>(false, $"Failure: Unable to create invoice. Because appointment associated to id = {invoiceRequest.AppointmentId} not found.", null);
+                    }
                     Appointment newAppointment = new Appointment();
                     newAppointment.PatientId = invoiceRequest.PatientId;
                     newAppointment.DoctorId = invoiceRequest.DoctorId;
@@ -170,6 +232,9 @@ namespace dotnet.Controllers
                 receipt.PaidAmount = invoiceRequest.ReceiptPaidAmount;
                 await _db.Receipts.AddAsync(receipt);
                 await _db.SaveChangesAsync();
+
+                invoice.Doctor = doctor;
+                invoice.Patient = patient;
 
                 transaction.Commit();
                 return new Response<Invoice>(true, "Success: Created object.", invoice);
