@@ -11,7 +11,7 @@ namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class ExpenseController : ControllerBase
     {
         private readonly Context _db;

@@ -11,7 +11,7 @@ namespace dotnet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class InvoiceController : ControllerBase
     {
         private readonly Context _db;
@@ -69,7 +69,12 @@ namespace dotnet.Controllers
                 {
                     return new Response<List<Invoice>>(false, "Failure: Enter a valid search string.", null);
                 }
-                List<Invoice> invoiceList = await _db.Invoices.Where(x => x.Id.ToString().Contains(search) || x.AppointmentId.ToString().Contains(search) || x.DoctorId.ToString().Contains(search) || x.PatientId.ToString().Contains(search) || x.Date.ToString().Contains(search) || x.CheckupType.Contains(search) || x.CheckupFee.ToString().Contains(search) || x.PaymentType.Contains(search) || x.Disposibles.ToString().Contains(search) || x.GrossAmount.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
+                List<Invoice> invoiceList = await _db.Invoices.Where(x => x.Id.ToString().Contains(search) ||
+                x.AppointmentId.ToString().Contains(search) || x.DoctorId.ToString().Contains(search) ||
+                x.PatientId.ToString().Contains(search) || x.Date.ToString().Contains(search) ||
+                x.CheckupType.Contains(search) || x.CheckupFee.ToString().Contains(search) ||
+                x.PaymentType.Contains(search) || x.Disposibles.ToString().Contains(search) ||
+                x.GrossAmount.ToString().Contains(search)).OrderBy(x => x.Id).Take(10).ToListAsync();
                 if (invoiceList != null)
                 {
                     if (invoiceList.Count > 0)
@@ -190,6 +195,13 @@ namespace dotnet.Controllers
                     appointmentId = newAppointment.Id;
                     appointmentDate = newAppointment.Date;
                 }
+
+                AppointmentDetail appointmentDetail = new AppointmentDetail();
+                appointmentDetail.AppointmentId = appointmentId;
+                appointmentDetail.HasDischarged = invoiceRequest.AppointmentDetailsHasDischarged;
+                appointmentDetail.WalkinType = invoiceRequest.AppointmentDetailsWalkinType;
+                await _db.AppointmentDetails.AddAsync(appointmentDetail);
+                await _db.SaveChangesAsync();
 
                 Invoice invoice = new Invoice();
                 invoice.AppointmentId = appointmentId;

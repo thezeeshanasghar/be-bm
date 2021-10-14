@@ -30,6 +30,9 @@ namespace dotnet.Models
         public String AppointmentType { get; set; }
         public String AppointmentPatientCategory { get; set; }
 
+        public bool AppointmentDetailsHasDischarged { get; set; }
+        public String AppointmentDetailsWalkinType { get; set; }
+
         public List<InvoiceProcedureRequest> ProcedureList { get; set; }
     }
 }

@@ -24,10 +24,12 @@ namespace dotnet.Models
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<InvoiceProcedures> InvoiceProcedures { get; set; }
         public DbSet<Login> Login { get; set; }
+        public DbSet<AppointmentDetail> AppointmentDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Procedure>().Property(r => r.Consent).HasConversion(new BoolToZeroOneConverter<Int16>());
+            modelBuilder.Entity<AppointmentDetail>().Property(r => r.HasDischarged).HasConversion(new BoolToZeroOneConverter<Int16>());
         }
     }
 }

@@ -17,6 +17,7 @@ namespace dotnet.Models
         public string PatientCategory { get; set; }
 
         public virtual Patient Patient { get; set; }
+        public virtual AppointmentDetail AppointmentDetail { get; set; }
     }
     public class Appointments
     {
