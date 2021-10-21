@@ -10,6 +10,7 @@ namespace dotnet.Models
         public int DoctorId { get; set; }
         public int InvoiceId { get; set; }
 
+        public int DoctorFee { get; set; }
         public string Pmid { get; set; }
         public int Discount { get; set; }
         public int TotalAmount { get; set; }

@@ -18,6 +18,8 @@ namespace dotnet.Models
         public int InvoiceDisposibles { get; set; }
         public int InvoiceGrossAmount { get; set; }
 
+        public int DoctorConsultationFee { get; set; }
+
         public string ReceiptPmid { get; set; }
         public int ReceiptDiscount { get; set; }
         public int ReceiptTotalAmount { get; set; }

@@ -140,11 +140,11 @@ namespace dotnet.Controllers
 
                 if (request.searchFrom.Equals("Room") || request.searchFrom.Equals("Emergency"))
                 {
-                    if (request.Category != null)
+                    if (request.Category != null && request.Doctor != null)
                     {
-                        if (request.Category.Length > 0)
+                        if (request.Category.Length > 0 && request.Doctor.Length > 0)
                         {
-                            appointmentList = await searchAppointmentsByRoomOrEmergency(request);
+                            appointmentList = await searchAppointmentsByRoomOrEmergencyAndDoctor(request);
                             if (appointmentList != null)
                             {
                                 if (appointmentList.Count > 0)
@@ -321,7 +321,7 @@ namespace dotnet.Controllers
             }
         }
 
-        private async Task<List<Appointment>> searchAppointmentsByRoomOrEmergency(AppointmentRequest request)
+        private async Task<List<Appointment>> searchAppointmentsByRoomOrEmergencyAndDoctor(AppointmentRequest request)
         {
             List<Appointment> list;
             if (request.Search != null)
@@ -333,13 +333,16 @@ namespace dotnet.Controllers
                 x.Patient.Description.Contains(request.Search) || x.Patient.User.FirstName.Contains(request.Search) ||
                 x.Patient.User.LastName.Contains(request.Search) || x.Patient.User.FatherHusbandName.Contains(request.Search) ||
                 x.Patient.User.Cnic.Contains(request.Search) || x.Patient.User.Contact.Contains(request.Search) ||
-                x.Patient.User.EmergencyContact.Contains(request.Search) || x.Patient.User.FloorNo.ToString().Contains(request.Search))
-                && x.PatientCategory.Equals(request.Category) && x.AppointmentDetail.WalkinType.Equals(request.searchFrom)).
-                Include(x => x.Patient).Include(x => x.Patient.User).Include(x => x.AppointmentDetail).OrderBy(x => x.Id).Take(10).ToListAsync();
+                x.Patient.User.EmergencyContact.Contains(request.Search) || x.Patient.User.FloorNo.ToString().Contains(request.Search)) &&
+                x.PatientCategory.Equals(request.Category) && x.AppointmentDetail.WalkinType.Equals(request.searchFrom) &&
+                x.DoctorId.ToString().Equals(request.Doctor)).Include(x => x.Patient).Include(x => x.Patient.User).
+                Include(x => x.AppointmentDetail).OrderBy(x => x.Id).Take(10).ToListAsync();
                 return list;
             }
-            list = await _db.Appointments.Where(x => x.PatientCategory.Equals(request.Category)).Include(x => x.Patient).
-            Include(x => x.AppointmentDetail).Include(x => x.Patient.User).Take(30).OrderBy(x => x.Id).ToListAsync();
+            list = await _db.Appointments.Where(x => x.PatientCategory.Equals(request.Category) && 
+            x.DoctorId.ToString().Equals(request.Doctor)).Include(x => x.Patient).
+            Include(x => x.AppointmentDetail).Include(x => x.Patient.User).Take(30).
+            OrderBy(x => x.Id).ToListAsync();
             return list;
         }
 

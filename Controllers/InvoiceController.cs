@@ -242,6 +242,7 @@ namespace dotnet.Controllers
                 receipt.TotalAmount = invoiceRequest.ReceiptTotalAmount;
                 receipt.PendingAmount = invoiceRequest.ReceiptPendingAmount;
                 receipt.PaidAmount = invoiceRequest.ReceiptPaidAmount;
+                receipt.DoctorFee = invoiceRequest.DoctorConsultationFee;
                 await _db.Receipts.AddAsync(receipt);
                 await _db.SaveChangesAsync();
 
@@ -257,5 +258,72 @@ namespace dotnet.Controllers
                 return new Response<Invoice>(false, $"Server Failure: Unable to insert object. Because {exception.Message}", null);
             }
         }
+
+        [HttpPost("post/doctor/share")]
+        public async Task<Response<List<Invoice>>> CalculateDoctorShare(DoctorShareRequest request)
+        {
+            try
+            {
+                int doctorShare = 0;
+                List<Invoice> invoiceList;
+                if (request != null)
+                {
+                    if (request.CheckupType.Equals("Procedure"))
+                    {
+                        invoiceList = await _db.Invoices.Where(x => (x.CheckupType == request.CheckupType) &&
+                        (x.Date >= request.FromDate.Date && x.Date < request.ToDate.Date.AddDays(1))).
+                        Include(x => x.Doctor).Include(x => x.Doctor.User).Include(x => x.Patient).
+                        Include(x => x.Patient.User).Include(x => x.Receipt).Include(x => x.InvoiceProcedures).
+                        Include(x => x.InvoiceProcedures.Procedures).ToListAsync();
+
+                        if (invoiceList != null)
+                        {
+                            if (invoiceList.Count > 0)
+                            {
+                                foreach (Invoice invoice in invoiceList)
+                                {
+                                    if (invoice.InvoiceProcedures.Procedures.Executant.Equals("Doctor"))
+                                    {
+                                        int doctorShareFromProcedure = (invoice.InvoiceProcedures.Procedures.Charges / 100) * invoice.InvoiceProcedures.Procedures.ExecutantShare;
+                                        doctorShare += doctorShareFromProcedure;
+                                    }
+                                    else
+                                    {
+                                        invoiceList.Remove(invoice);
+                                    }
+                                }
+                                return new Response<List<Invoice>>(true, doctorShare.ToString(), invoiceList);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        invoiceList = await _db.Invoices.Where(x => (x.CheckupType == request.CheckupType) && (x.Date >= request.FromDate.Date &&
+                        x.Date < request.ToDate.Date.AddDays(1))).Include(x => x.Doctor).Include(x => x.Doctor.User).
+                        Include(x => x.Patient).Include(x => x.Patient.User).Include(x => x.Receipt).ToListAsync();
+
+                        if (invoiceList != null)
+                        {
+                            if (invoiceList.Count > 0)
+                            {
+                                foreach (Invoice invoice in invoiceList)
+                                {
+                                    doctorShare += invoice.Receipt.DoctorFee;
+                                }
+                                return new Response<List<Invoice>>(true, doctorShare.ToString(), invoiceList);
+                            }
+                        }
+                    }
+                }
+                return new Response<List<Invoice>>(false, "Failure: Database is empty.", null);
+            }
+            catch (Exception exception)
+            {
+                return new Response<List<Invoice>>(false, $"Server Failure: Unable to get data. Because {exception.Message}", null);
+            }
+        }
+
+
+
     }
 }
